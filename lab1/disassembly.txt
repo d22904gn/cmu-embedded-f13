@@ -1,0 +1,9 @@
+1. Entry point: 0x82ac
+2. _init
+3. -D (Big d) disassembles all sections, not just sections with code
+   (i.e. sections with code are: .init, .plt, .text, .fini since they are
+    marked executable.) 
+4. The interpretation is incorrect; .rodata contains read-only constants
+   in the program, such as the strings passed to printf(). Data in this
+   section is not meant to be interpreted as instructions; they are 
+   hex representations of ASCII characters.
