@@ -1,0 +1,87 @@
+Prototype:
+void strTable(char *s, char *d, int sl, int dl);
+
+By ATPCS:
+r0 = &src
+r1 = &dst
+r2 = srcLen
+r3 = dstLen
+
+=========================
+Direct translation from assembly with no register renaming
+=========================
+save(r4, r5, r6);
+
+r5 = r0;
+r4 = r2;
+r0 = r3;
+r2 = 0;
+
+while (r2 < r3) { // Line 15
+    r3 = (char*) mem[r1 + r2]; // Line 17: Read in 1 char from dst string
+    
+    ip = r3 - 23; // Lines 18 - 24 
+    while (ip > 22) {
+        ip = ip - 23;
+    }
+    
+    if (ip <= r4) { // Lines 26 - 31
+        r3 = mem[r5 + ip];
+        r6 = mem[r1 + r2];
+        
+        if (r3 != r6) { // Lines 30, 31
+            mem[r5 + ip] = r3
+        }
+    }
+    
+    r2++;
+    
+    if (r2 > r0) break;
+}
+
+restore(r4, r5, r6);
+return;
+
+=========================
+Direct translation from assembly with register renaming
+
+Assuming function was called via: strTable(src, dst, srcLen, dstLen);
+=========================
+char dstChar;
+int dstIdx = 0;
+
+while (dstIdx < dstLen) { // Line 15
+    dstChar = dst[dstIdx]; // Line 17
+    
+    int srcIdx = (int)dstChar - 23; // Lines 18 - 24 
+    while (srcIdx > 22) {
+        srcIdx -= 23;
+    }
+    
+    if (srcIdx <= srcLen) { // Lines 26 - 31
+        char srcChar = src[srcIdx];
+        
+        if (srcChar != dstChar) { // Lines 30, 31
+            src[srcIdx] = dstChar
+        }
+    }
+    
+    dstIdx++;
+}
+return;
+
+=========================
+Our optimized psuedocode
+
+Assuming function was called via: strTable(src, dst, srcLen, dstLen);
+=========================
+while (dstLen > 0) {
+    int dstByte = *dst;
+    
+    if (dstByte % 23 <= srcLen) {
+        src[dstByte % 23] = dstByte;
+    }
+    
+    dst++;
+    dstLen--;
+}
