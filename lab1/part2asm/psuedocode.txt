@@ -76,10 +76,16 @@ Our optimized psuedocode
 Assuming function was called via: strTable(src, dst, srcLen, dstLen);
 =========================
 while (dstLen > 0) {
-    int dstByte = *dst;
+    int dstByte = (int) *dst;
     
-    if (dstByte % 23 <= srcLen) {
-        src[dstByte % 23] = dstByte;
+    int srcIdx = dstByte
+    while (srcIdx > 0) {
+        srcIdx -= 23;
+    }
+    srcIdx += 23;
+    
+    if (srcIdx <= srcLen) {
+        src[srcIdx] = (char) dstByte;
     }
     
     dst++;
