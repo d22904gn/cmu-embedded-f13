@@ -6,7 +6,7 @@ COMMON_OBJS = main.o
 STOCK_OBJS = strTable.o
 OPTIMIZED_OBJS = strTable_optimized.o
 
-default: part2asm
+default: part2asm optimized
 
 .PHONY: default clean clobber
 
