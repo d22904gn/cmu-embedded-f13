@@ -37,7 +37,7 @@ int oddball(int *arr, int len) {
 #endif
 
 #ifdef OPTIMIZE1
-int oddball(int *arr, int len) {
+__pure int oddball(int *arr, int len) {
 	/* Put your code here */
     int i, j;
     int foundInner;
@@ -64,24 +64,37 @@ int oddball(int *arr, int len) {
 #endif
 
 #ifdef OPTIMIZE2
+// Mark function as pure
+__pure int oddball(int *arr, int len);
+
 // Final optimized version.
 int oddball(int *arr, int len) {
-    /* Put your code here */
-    int i, j;
-
-    // Used a loop that counted down instead of counting upwards.
-    for (i = len-1; i >= 0; i--) {
-        for (j = len; j >= 0; j--) {
-            // Removed redundant if statement and merged the conditional check
+    // Changed counter type to unsigned int.
+    unsigned int i = len - 1, j = len;
+    
+    // Used a do-while loop instead of for loop since loop guaranteed to
+    // run at least once. Also counted down instead of counting upwards.
+    // and changed comparison to != instead of >=.
+    
+    // TODO: Think about cache misses; counting down implies that we cannot
+    // use spatial locality. Might want to check from 0 instead. So maybe
+    // use something like newcounter = len - j.
+    do {
+		do {
+			// Removed redundant if statement and merged the conditional check
             // into the second if statement.
             if (i != j && arr[i] == arr[j]) {
-                // Removed foundInner variable and result variable. Just
+				// Removed foundInner variable and result variable. Just
                 // immediately return the result once we find it.
                 return arr[i];
-            }
-        }
-    }
-
+			}
+			
+			j--;
+		} while (j != 0);
+		
+        i--;
+    } while (i != 0);
+	
     return 0;
 }
 #endif
