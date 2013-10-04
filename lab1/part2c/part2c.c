@@ -75,10 +75,6 @@ int oddball(int *arr, int len) {
     // Used a do-while loop instead of for loop since loop guaranteed to
     // run at least once. Also counted down instead of counting upwards.
     // and changed comparison to != instead of >=.
-    
-    // TODO: Think about cache misses; counting down implies that we cannot
-    // use spatial locality. Might want to check from 0 instead. So maybe
-    // use something like newcounter = len - j.
     do {
 		do {
 			// Removed redundant if statement and merged the conditional check
