@@ -78,11 +78,16 @@ Assuming function was called via: strTable(src, dst, srcLen, dstLen);
 while (dstLen > 0) {
     int dstByte = (int) *dst;
     
-    int srcIdx = dstByte
-    while (srcIdx > 0) {
-        srcIdx -= 23;
-    }
-    srcIdx += 23;
+    int srcIdx = dstByte;
+    
+    // Note: dstByte guaranteed to be 0 <= dstByte <= 255
+    srcIdx -= 69;
+    if (srcIdx >= 0) srcIdx -= 69;
+    if (srcIdx >= 0) srcIdx -= 69;
+    if (srcIdx >= 0) srcIdx -= 69;
+    if (srcIdx < 0) srcIdx += 23;
+    if (srcIdx < 0) srcIdx += 23;
+    if (srcIdx < 0) srcIdx += 23;
     
     if (srcIdx <= srcLen) {
         src[srcIdx] = (char) dstByte;

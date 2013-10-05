@@ -1,20 +1,19 @@
 ====================
-Statistics at bottom
+Assembly trace of 1 strTable() run
+Note: Statistics below
 ====================
 stmfd   sp!, {r4}
 cmp     r3, #0
 beq     .Lreturn
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -22,15 +21,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -38,15 +35,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -54,15 +49,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -70,15 +63,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -86,15 +77,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -102,15 +91,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -118,15 +105,13 @@ subs    r3, r3, #1
 bne     .Lread_d_char
 ldrb    r4, [r1]    @ zero_extendqisi2
 mov     ip, r4
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-subs    ip, ip, #23
-bpl     .Lmod
-add     ip, ip, #23
+subs    ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69
+subpls  ip, ip, #69  
+addmis   ip, ip, #23
+addmis   ip, ip, #23
+addmi   ip, ip, #23
 cmp     ip, r2
 strleb  r4, [r0, ip]
 add     r1, r1, #1
@@ -135,20 +120,15 @@ bne     .Lread_d_char
 ldmfd   sp!, {r4}
 mov     pc, lr
 
-============
+====================
 Statistics
-============
-133 instructions ran in total:
--- 9 stores
--- 9 loads
--- 41 cond branch
-==> 177 pts for stores, loads, cond. branches
+====================
+Total instructions ran: 117
+-- Conditional branches: 9
+-- Stores (# registers factored in): 9
+-- Loads (# registers factored in): 9
+-- Other instructions: 90
 
--- 1 branch
-==> 73 normal
-==> 74 pts for normal instructions
+Function size: 19 instructions
 
-Code size: 15 instructions
-==> 75 pts for size
-
-Total score: 326
+Total score: 90 + 27 * 3 + 19 * 5 = 266

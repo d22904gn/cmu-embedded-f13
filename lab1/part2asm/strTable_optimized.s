@@ -23,14 +23,17 @@ strTable:
 .Lread_d_char:
     ldrb    r4, [r1]    @ zero_extendqisi2
     
-    @ Replaced modulo loop with more efficient one
+    @ Completely unrolled modulo loop.
     @ ==> Removed 4 normal instructions & 2 conditional branches
-    @ ==> But added 3 normal instructions and 1 conditional branch.
+    @ ==> Added 8 normal instructions.
     mov     ip, r4
-.Lmod:
-    subs    ip, ip, #23
-    bpl     .Lmod
-    add     ip, ip, #23
+    subs    ip, ip, #69
+    subpls  ip, ip, #69
+    subpls  ip, ip, #69
+    subpls  ip, ip, #69  
+    addmis   ip, ip, #23
+    addmis   ip, ip, #23
+    addmi   ip, ip, #23
     
     cmp     ip, r2
     
