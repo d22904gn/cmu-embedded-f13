@@ -37,44 +37,18 @@ int oddball(int *arr, int len) {
 #endif
 
 #ifdef OPTIMIZE1
-__pure int oddball(int *arr, int len) {
-	/* Put your code here */
-    int i, j;
-    int foundInner;
-    int result = 0;
-
-    // Used a loop that counted down instead of counting upwards.
-    for (i = len-1; i >= 0; i--) {
-        foundInner = 0;
-        for (j = len; j >= 0; j--) {
-            if (i == j) {
-                continue;
-            }
-            if (arr[i] == arr[j]) {
-                foundInner = 1;
-            }
-        }
-        if (foundInner != 1) {
-            result = arr[i];
-        }
-    }
-
-    return result;
-}
-#endif
-
-#ifdef OPTIMIZE2
 // Mark function as pure
-__pure int oddball(int *arr, int len);
+//__pure int oddball(int *arr, int len);
 
-// Final optimized version.
 int oddball(int *arr, int len) {
-    // Changed counter type to unsigned int.
-    unsigned int i = len - 1, j = len;
+    // Changed counter type to unsigned int; then compiler is free to
+    // assume the overflows never happen.
+    unsigned int i = len - 1, j = len - 1;
     
-    // Used a do-while loop instead of for loop since loop guaranteed to
-    // run at least once. Also counted down instead of counting upwards.
-    // and changed comparison to != instead of >=.
+    // Use a do-while loop instead of for loop since loop guaranteed to run at
+    // least once. Also counted down instead of counting upwards and changed
+    // comparison to != instead of >=. This avoids initial compare and
+    // conditional branch before loop starts.
     do {
 		do {
 			// Removed redundant if statement and merged the conditional check
@@ -91,6 +65,83 @@ int oddball(int *arr, int len) {
         i--;
     } while (i != 0);
 	
+    return 0;
+}
+#endif
+
+#ifdef OPTIMIZE2
+// Mark function as pure
+//__pure int oddball(int *arr, int len);
+
+// Algorithm uses an in-place, iterative quicksort to sort array, and then
+// it searches linearly for the unique element. Runtime complexity O(n log n).
+// An in-place, iterative sort was chosen to avoid too many stack accesses
+// (GCC seems to like to save and use callee saved registers in their function
+// prologue even if it is possible to execute the code by only using the
+// argument registers) and also to take advantage of spatial and temporal
+// locality in the cache.
+
+// Quicksort bit based on iterative quicksort code from
+// http://en.wikibooks.org/wiki/Algorithm_Implementation/Sorting/Quicksort#Iterative_Quicksort
+// Note that we do not use a random pivot; division and modulo is too slow.
+#define STACK_SIZE 32
+
+int oddball(int *arr, int len) {
+    // Quicksort variables
+    unsigned int lower = 0, greaterIdx = 0, pos = 0;
+    unsigned int stack[STACK_SIZE];
+    unsigned int upper = len;
+    int pivot = 0, temp = 0;
+    
+    // Linear search variables
+    unsigned int i = len - 2;
+    
+    while (1) {
+        // Sort from lower to upper - 1
+        while (lower + 1 < upper) {
+            // Check for stack overflow.
+            if (pos == STACK_SIZE) {
+                pos = 0;
+                upper = stack[0];
+            }
+            
+            pivot = arr[lower]; // Pick pivot
+            stack[pos++] = upper; // Mark right partition for later
+            
+            // Partition array and start sorting wrt pivot.
+            greaterIdx = lower - 1; // OK to unsigned overflow.
+            while (1) {
+                // Search for greater, then smaller element.
+                while (arr[++greaterIdx] < pivot);
+                while (pivot < arr[--upper]);
+                
+                // Check if array partition has been completely sorted.
+                if (greaterIdx >= upper) break;
+                
+                // Swap elements.
+                temp = arr[greaterIdx];
+                arr[greaterIdx] = arr[upper];
+                arr[upper] = temp;
+            }
+            
+            upper++;
+        }
+        
+        // We are done when the stack is empty.
+        if (pos == 0) break; 
+        
+        // Else, continue sorting
+        lower = upper;
+        upper = stack[--pos];
+    }
+    
+    // Linear search bit.
+    do {
+        temp = arr[i];
+        if (temp != arr[i + 1] && temp != arr[i - 1]) return temp;
+        i--;
+    } while (i != 1);
+    
     return 0;
 }
 #endif
