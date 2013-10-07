@@ -12,6 +12,8 @@
  *   The number that occurs only once
  */
 #ifdef DEFAULT
+// Memory complexity: O(1)
+// Time complexity: O(n^2)
 int oddball(int *arr, int len) {
 	int i, j;
 	int foundInner;
@@ -40,109 +42,93 @@ int oddball(int *arr, int len) {
 // Mark function as pure
 //__pure int oddball(int *arr, int len);
 
+// ****************************************************************************
+// ***** Memory/Space improvements and tradeoffs:
+// ****************************************************************************
+// Memory complexity: O(n)
+// Time complexity: O(n)
+// This optimization decreases the time complexity from O(n^2) to O(n) but
+// increases the memory complexity from O(1) to O(n).
+// ****************************************************************************
+// ***** Algorithm:
+// ****************************************************************************
+// A count array of size (n+1) is created to keep track of the number of
+// appearances of all the numbers in the array. The number which has a count of
+// only 1 is the unique element.
 int oddball(int *arr, int len) {
     // Changed counter type to unsigned int; then compiler is free to
     // assume the overflows never happen.
-    unsigned int i = len - 1, j = len - 1;
-    
+    unsigned int i = len - 1;
+    unsigned int num_uniq = (len + 1)/2;
+    unsigned int count[num_uniq + 1];
+
     // Use a do-while loop instead of for loop since loop guaranteed to run at
     // least once. Also counted down instead of counting upwards and changed
     // comparison to != instead of >=. This avoids initial compare and
     // conditional branch before loop starts.
+    // Loops at most 2n-1 times.
     do {
-		do {
-			// Removed redundant if statement and merged the conditional check
-            // into the second if statement.
-            if (i != j && arr[i] == arr[j]) {
-				// Removed foundInner variable and result variable. Just
-                // immediately return the result once we find it.
-                return arr[i];
-			}
-			
-			j--;
-		} while (j != 0);
-		
+        count[arr[i]]++;
         i--;
     } while (i != 0);
-	
+
+    do {
+        // Found the unique element.
+        if (count[num_unique] == 1) {
+            return num_unique
+        }
+        num_uniq--;
+    } while (num_unique != 0);
     return 0;
 }
+
 #endif
 
 #ifdef OPTIMIZE2
 // Mark function as pure
 //__pure int oddball(int *arr, int len);
 
-// Algorithm uses an in-place, iterative quicksort to sort array, and then
-// it searches linearly for the unique element. Runtime complexity O(n log n).
-// An in-place, iterative sort was chosen to avoid too many stack accesses
-// (GCC seems to like to save and use callee saved registers in their function
-// prologue even if it is possible to execute the code by only using the
-// argument registers) and also to take advantage of spatial and temporal
-// locality in the cache.
-
-// Quicksort bit based on iterative quicksort code from
-// http://en.wikibooks.org/wiki/Algorithm_Implementation/Sorting/Quicksort#Iterative_Quicksort
-// Note that we do not use a random pivot; division and modulo is too slow.
-#define STACK_SIZE 32
-
+// ****************************************************************************
+// ***** Memory/Space improvements and tradeoffs:
+// ****************************************************************************
+// Memory complexity: O(1)
+// Time complexity: O(n)
+// This optimization decreases the time complexity from O(n^2) to O(n) and keeps
+// the memory complexity constant at O(1)
+// ****************************************************************************
+// ***** Algorithm:
+// ****************************************************************************
+// Given an array of elements where every element appears an even number of
+// times except for an element N, XOR-ing every element in the array together
+// will result in N. This is due to the following principles:
+//      1) XOR is commutative   -> Given an example array [42 2 3 2 3] where 42
+//                                 is the unique element:
+//                                 42 ^ 2 ^ 3 ^ 2 ^ 3 = 42 ^ (2 ^ 2) ^ (3 ^ 3)
+//      2) a XOR a = 0          -> The elements appearing an even number of
+//                                 times will just cancel out to 0.
+//                                 42 ^ (2 ^ 2) ^ (3 ^ 3) = 42 ^ (0 ^ 0)
+//                                                        = 42 ^ 0
+//      3) a XOR 0 = 0          -> With all the other even count elements
+//                                 cancelling out to 0, the result will be
+//                                 N XOR 0 = N
+//                                 Hence: 42 ^ 2 ^ 3 ^ 2 ^ 3 = 42 ^ 0 = 42
+//                                        => 42 is the unique element.
 int oddball(int *arr, int len) {
-    // Quicksort variables
-    unsigned int lower = 0, greaterIdx = 0, pos = 0;
-    unsigned int stack[STACK_SIZE];
-    unsigned int upper = len;
-    int pivot = 0, temp = 0;
-    
-    // Linear search variables
-    unsigned int i = len - 2;
-    
-    while (1) {
-        // Sort from lower to upper - 1
-        while (lower + 1 < upper) {
-            // Check for stack overflow.
-            if (pos == STACK_SIZE) {
-                pos = 0;
-                upper = stack[0];
-            }
-            
-            pivot = arr[lower]; // Pick pivot
-            stack[pos++] = upper; // Mark right partition for later
-            
-            // Partition array and start sorting wrt pivot.
-            greaterIdx = lower - 1; // OK to unsigned overflow.
-            while (1) {
-                // Search for greater, then smaller element.
-                while (arr[++greaterIdx] < pivot);
-                while (pivot < arr[--upper]);
-                
-                // Check if array partition has been completely sorted.
-                if (greaterIdx >= upper) break;
-                
-                // Swap elements.
-                temp = arr[greaterIdx];
-                arr[greaterIdx] = arr[upper];
-                arr[upper] = temp;
-            }
-            
-            upper++;
-        }
-        
-        // We are done when the stack is empty.
-        if (pos == 0) break; 
-        
-        // Else, continue sorting
-        lower = upper;
-        upper = stack[--pos];
-    }
-    
-    // Linear search bit.
+    // Changed counter type to unsigned int; then compiler is free to
+    // assume the overflows never happen.
+    unsigned int i = len - 1;
+    unsigned int result = 0;
+
+    // Use a do-while loop instead of for loop since loop guaranteed to run at
+    // least once. Also counted down instead of counting upwards and changed
+    // comparison to != instead of >=. This avoids initial compare and
+    // conditional branch before loop starts.
+    // Loops at most 2n-1 times.
     do {
-        temp = arr[i];
-        if (temp != arr[i + 1] && temp != arr[i - 1]) return temp;
+        result ^= arr[i];
         i--;
-    } while (i != 1);
-    
-    return 0;
+    } while (i != 0);
+    return result;
 }
 #endif
 
