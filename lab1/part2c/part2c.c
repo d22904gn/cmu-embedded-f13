@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /**
  * Function: oddball
@@ -45,7 +46,7 @@ int oddball(int *arr, int len) {
 
 #ifdef OPTIMIZE1
 // Mark function as pure
-//__pure int oddball(int *arr, int len);
+int oddball(int *arr, int len) __attribute__((pure));
 
 // ****************************************************************************
 // ***** Memory/Space improvements and tradeoffs:
@@ -57,33 +58,48 @@ int oddball(int *arr, int len) {
 // ****************************************************************************
 // ***** Algorithm:
 // ****************************************************************************
-// A count array of size (n+1) is created to keep track of the number of
-// appearances of all the numbers in the array. The number which has a count of
-// only 1 is the unique element.
+// A count array of size len is created to keep track of the number of
+// appearances of the numbers in the array. Each time number x is encountered in
+// the source data, count[x] is incremented. The number which has a count of
+// only 1 is the unique element. 
 int oddball(int *arr, int len) {
-    // Changed counter type to unsigned int; then compiler is free to
-    // assume the overflows never happen.
-    unsigned int i = len - 1;
-    unsigned int num_uniq = (len + 1)/2;
-    unsigned int count[num_uniq + 1];
-
+    // Changed counter to unsigned int to avoid a compare with 0 in the loop
+    // termination condition code. (See pg 116, ARM System Developer's Guide:
+    // Designing and Optimizing System Software)
+    unsigned int i = len;
+    unsigned int count[i]; // Technically we only have (len - 1) / 2 numbers to
+                           // keep track of, but division is slow. So we
+                           // tradeoff by allocating a bit of extra memory
+                           // instead.
+    
+    // Zero out our count array.
+    memset(count, 0, sizeof(count));
+    
     // Use a do-while loop instead of for loop since loop guaranteed to run at
     // least once. Also counted down instead of counting upwards and changed
-    // comparison to != instead of >=. This avoids initial compare and
-    // conditional branch before loop starts.
+    // comparison to != instead of >= due to unsigned overflow in our counter.
+    // This avoids initial compare and conditional branch before loop starts.
     // Loops at most 2n-1 times.
     do {
-        count[arr[i]]++;
+        count[*arr]++;
+        
+        arr++;
         i--;
     } while (i != 0);
-
+    
+    // Search through our count array for the element which has only 1 count.
+    // Note that we can ignore count[0] since it never appears in our source 
+    // array data.
+    i = len - 1;
     do {
-        // Found the unique element.
-        if (count[num_unique] == 1) {
-            return num_unique
+        if (count[i] == 1) {
+            // Found the unique element.
+            return i;
         }
-        num_uniq--;
-    } while (num_unique != 0);
+        
+        i--;
+    } while (i != 0);
+    
     return 0;
 }
 
@@ -91,7 +107,7 @@ int oddball(int *arr, int len) {
 
 #ifdef OPTIMIZE2
 // Mark function as pure
-//__pure int oddball(int *arr, int len);
+int oddball(int *arr, int len) __attribute__((pure));
 
 // ****************************************************************************
 // ***** Memory/Space improvements and tradeoffs:
@@ -119,20 +135,23 @@ int oddball(int *arr, int len) {
 //                                 Hence: 42 ^ 2 ^ 3 ^ 2 ^ 3 = 42 ^ 0 = 42
 //                                        => 42 is the unique element.
 int oddball(int *arr, int len) {
-    // Changed counter type to unsigned int; then compiler is free to
-    // assume the overflows never happen.
-    unsigned int i = len - 1;
-    unsigned int result = 0;
+    // Changed counter to unsigned int to avoid a compare with 0 in the loop
+    // termination condition code. (See pg 116, ARM System Developer's Guide:
+    // Designing and Optimizing System Software)
+    unsigned int i = len;
+    int result = 0;
 
     // Use a do-while loop instead of for loop since loop guaranteed to run at
     // least once. Also counted down instead of counting upwards and changed
-    // comparison to != instead of >=. This avoids initial compare and
-    // conditional branch before loop starts.
-    // Loops at most 2n-1 times.
+    // comparison to != instead of >= due to unsigned overflow in our counter.
+    // This avoids initial compare and conditional branch before loop starts.
     do {
-        result ^= arr[i];
+        result ^= *arr;
+        
+        arr++;
         i--;
     } while (i != 0);
+    
     return result;
 }
 #endif
@@ -166,7 +185,3 @@ int randGenerator(int *arr, int len) {
 	printf("\nDone generating\n");
 	return 0;
 }
-
-
-
-
