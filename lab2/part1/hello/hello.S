@@ -13,8 +13,13 @@
 
     .global	_start
 _start:
-    mov r0, STDOUT_FILENO
-    
+    mov r0, #STDOUT_FILENO
+    adr r1, hello_str
+    mov r2, #hello_size
     swi WRITE_SWI
     mov r0, #0
     swi EXIT_SWI
+    
+hello_str:
+    .ascii  "Hello world!\n"
+    .set    hello_size, .-hello_str
