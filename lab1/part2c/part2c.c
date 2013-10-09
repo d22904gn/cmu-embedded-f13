@@ -1,3 +1,8 @@
+// 18-349 Group 2
+// Wee Loong Kuan (wkuan)
+// Chin Yang Oh (chinyano)
+// Jennifer Lee (jcl1)
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
