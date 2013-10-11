@@ -8,7 +8,6 @@
 #include <bits/swi.h>
 
     .file   "write.S"
-    .extern errno       @ Just for documentation. Ignored by GAS.
     .text
 
     .global write
@@ -21,3 +20,6 @@ write:
     ldrlt   r1, =errno  @ Load address of errno
     strlt   r0, [r1]    @ Stuff return val into errno.
     mvnlt   r0, #0      @ Return -1
+    
+    @ Return to caller
+    mov     pc, lr
