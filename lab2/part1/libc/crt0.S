@@ -11,13 +11,12 @@
     .global _start
 _start:
     @ Load argv** and argc into arg registers
-    ldr     r0, [sp]    @ argc
-    add     r1, sp, #4  @ argv**
+    ldr     r0, [sp]    @ Load argc
+    add     r1, sp, #4  @ Load argv**
     
-    @ Call main via direct PC math-fu. (Since we don't know where main() is.)
-    mov     lr, pc  @ Update lr manually with our return address. Note it's 
-                    @ <instr addr> + 8 = pc since next instruction is our branch
+    @ Call main
+    mov     lr, pc
     ldr     pc, =main
     
-    @ Call exit via math-fu again.
+    @ Call exit
     ldr     pc, =exit

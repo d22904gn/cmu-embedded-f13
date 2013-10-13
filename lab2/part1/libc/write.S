@@ -17,8 +17,8 @@ write:
     
     @ Subsequent instructions execute only if syscall returned an error.
     rsblt   r0, r0, #0      @ Make syscall return value positive
-    strlt   r0, [pc, #-4]   @ Stuff return val into errno.
-    .word   errno           @ errno's address
+    ldrlt   r1, =errno
+    strlt   r0, [r1]        @ Set errno = |return val|
     mvnlt   r0, #0          @ Return -1
     
     @ Return to caller
