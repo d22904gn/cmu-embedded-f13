@@ -7,9 +7,8 @@
  * Date:    10 Oct 2013
  */
 
-#include <bits/swi.h>
 #include <exports.h>
-#include "syscalls.c"
+#include "syscalls.h"
 
 void swi_handler_c(int swi_num, void *r) {
     switch (swi_num) {

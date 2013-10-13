@@ -1,15 +1,19 @@
-@ main.S: Kernel main entry point.
+@ kernel.S: Kernel main entry point.
 @
 @ Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
 @          Chin Yang Oh <chinyano@andrew.cmu.edu>
 @          Jennifer Lee <jcl1@andrew.cmu.edu>
 @ Date:    12 Oct 2013
 
-    .file   "main.S"
+#include <bits/swi.h>
+
+    .file   "kernel.S"
     .text
     .global _start
     
 _start:
+    @ ** NOTE: USING APCS CONVENTION **
+    
     @ Install our SWI handler
     @ -- Store contents of SWI vector into r2
     mov     r2, #0x8
@@ -29,21 +33,28 @@ _start:
     ldrne   lr, pc
     ldrne   pc, =puts           @ Print out error message 
     ldrne   r0, =0x0badc0de
-    movne   pc, lr
+    movne   pc, lr              @ Return to U-Boot
+    
+    @ -- Save U-Boot SWI handler
+    ldr     r2, [r3, #16]   @ r2 = U-Boot SWI handler addr
+    ldr     r3, [r2]
+    strfd   sp!, {r3}       @ Store 1st instr of U-Boot handler
+    ldr     r3, [r2, #4]
+    strfd   sp!, {r3, r2}   @ Store 2nd instr & addr of U-Boot handler
     
     @ -- Hijack U-Boot SWI handler with our SWI handler
-    add     r2, r3, #16         @ r2 = U-Boot SWI handler addr
     ldr     r3, =0xe51ff004     @ r3 = Opcode for ldr pc, [pc, #-4]
     str     r3, [r2]            @ Overwrite 1st instr of U-Boot handler
     ldr     r3, =swi_handler    @ r3 = Our SWI handler addr
     str     r3, [r2, #4]        @ Overwrite 2nd instr of U-Boot handler
     
-    @ Switch to user mode
+    @ Setup user stack and initial arguments (argc, argv)
+    msr     CPSR_c, #0xD0       @ Switch to user mode
     
+    @ Load user program
     
-    @ Setup user stack and initial arguments
+    @ Cleanup after user program and exit.
+    swi #EXIT_SWI
     
-    @ Load user program.
-
 bad_swi_str:
     .string "Bad SWI Vector!\n"
