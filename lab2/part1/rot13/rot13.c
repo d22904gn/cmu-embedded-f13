@@ -4,7 +4,7 @@
  * Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
- * Date:    10 Sep 2013
+ * Date:    10 Oct 2013
  */
 
 #include <errno.h>
