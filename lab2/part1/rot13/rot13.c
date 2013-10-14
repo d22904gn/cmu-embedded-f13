@@ -17,7 +17,7 @@
 // Applies ROT13 encoding to the input char array in-place.
 int applyROT13(char *input, unsigned int len) {
     int i;
-    
+
     for (i = 0; i < len; i++) {
         if ((65 <= input[i] && input[i] <= 77) ||
             (97 <= input[i] && input[i] <= 109)) {
@@ -27,29 +27,36 @@ int applyROT13(char *input, unsigned int len) {
             input[i] -= 13;
         }
     }
-    
+
     return 0;
 }
 
 int main(void) {
     char buf[BUF_SIZE];
-    int inputSize;
-    
+    int readSize, writeSize, unwrittenSize;
+
     while (1) {
         // Reset input size.
-        inputSize = 0;
-        
-        // Read input from stdin.
-        if ((inputSize = read(STDIN_FILENO, buf, BUF_SIZE)) < 0) {
-            exit(1);
-        }
-        
-        // Do ROT13
-        applyROT13(buf, inputSize);
-        
-        // Write to stdout.
-        if (write(STDOUT_FILENO, buf, inputSize) < 0) {
-            exit(1);
-        }
+        readSize = 0;
+        // Read input from stdin until we reach EOF (readSize = 0)
+        do {
+            if ((readSize = read(STDIN_FILENO, buf, BUF_SIZE)) < 0) {
+                exit(1);
+            }
+            // Do ROT13
+            applyROT13(buf, readSize);
+            // Write to stdout what we have so far.
+            if (readSize != 0) {
+                unwrittenSize = readSize;
+                // Loop and write until we have finished writing everything in
+                // the buffer.
+                do {
+                    if ((writeSize = write(STDOUT_FILENO, buf, unwrittenSize)) < 0) {
+                        exit(1);
+                    }
+                    unwrittenSize -= writeSize;
+                } while (unwrittenSize > 0)
+            }
+        } while (readSize != 0)
     }
 }
