@@ -55,8 +55,8 @@ int main(void) {
                         exit(1);
                     }
                     unwrittenSize -= writeSize;
-                } while (unwrittenSize > 0)
+                } while (unwrittenSize > 0);
             }
-        } while (readSize != 0)
+        } while (readSize != 0);
     }
 }
