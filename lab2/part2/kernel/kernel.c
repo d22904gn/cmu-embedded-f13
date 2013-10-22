@@ -48,8 +48,10 @@ int main(int argc, char *argv[]) {
     *swi_handler = (LDR_OPCODE_DOWN | 0x04);
     *(swi_handler + 1) = &swi_handler;
 
+    setup_usermode(argc, argv);
+
     // Load user program and exit after user program is done.
-    asm("msr CPSR_c, #0xD0\n\t"); // Switch to user mode.
+    // asm("msr CPSR_c, #0xD0\n\t"); // Switch to user mode.
     // TODO XXX
 
     return 0; // To satisfy GCC
