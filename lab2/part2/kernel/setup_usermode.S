@@ -25,7 +25,7 @@ setup_usermode:
     @ Push U-Boot’s argc & argv on the user stack.
     @ Registers r0 and r1 contain the arguments to this function, which are
     @ U-Boot's argc and argv values respectively.
-    push <r0,r1>
+    push {r0,r1}
 
     @  Jump to a loaded user program at address 0xa2000000.
     LDR    pc, =0xa2000000
