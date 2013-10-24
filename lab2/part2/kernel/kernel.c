@@ -8,7 +8,7 @@
  */
 
 #include <exports.h>
-// #include "syscalls.h"
+#include "syscalls.h"
 
 #define PREFETCH_OFFSET 0x8
 #define SWI_VEC_ADDR    0x8
@@ -19,6 +19,7 @@
 #define USR_PROG_ENTRY  0xa2000000
 
 #include "kernel.h"
+#include "swi_handler_c.h"
 
 int main(int argc, char** argv) {
     /*
@@ -33,8 +34,8 @@ int main(int argc, char** argv) {
     int swi_vector_instr = swi_vector & ~LDR_IMM_MASK;
     if (swi_vector_instr != LDR_OPCODE_UP && swi_vector_instr != LDR_OPCODE_DOWN) {
         puts("Unrecognized SWI Vector!\n");
-        puts("%d\n",swi_vector_instr);
-        puts("%d\n",swi_vector);
+        printf("%x\n",swi_vector_instr);
+        printf("%x\n",swi_vector);
         return 0x0badc0de;
     }
 
@@ -46,14 +47,15 @@ int main(int argc, char** argv) {
     // Save U-Boot SWI handler into global var.
     uboot_swi_handler = *var_swi_handler;
 
-    // var_swi_handler is the address of the address to the swi handler.
     int* swi_handler_addr = (int*) *((int*) var_swi_handler);
-    // Load our own SWI handler.
     printf("swi_handler_addr = %x\n", (int) swi_handler_addr);
     printf("swi_handler_function_addr = %x\n", (int) swi_handler);
 
     *swi_handler_addr = (LDR_OPCODE_DOWN | 0x04);
     *(swi_handler_addr + 1) = (int) &swi_handler;
+
+    puts("GOING TO SETUP_USERMODE...\n");
+
 
     //Switch to user mode with IRQs & FIQs masked.
     //Setup a full descending user mode stack (with the stack top at 0xa3000000).

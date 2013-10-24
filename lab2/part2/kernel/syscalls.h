@@ -12,11 +12,9 @@
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
 
-// Stores old U-Boot SWI handler instructions.
-long long uboot_swi_handler;
-
-void __swi(EXIT_SWI) exit(int status); // Implemented in ASM
-ssize_t __swi(READ_SWI) read(int fd, void *buf, size_t count);
-ssize_t __swi(WRITE_SWI) write(int fd, const void *buf, size_t count);
+// TODO:
+void exit(int status); // Implemented in ASM
+//ssize_t readss(int fd, void *buf, int count);
+//ssize_t write(int fd, void *buf, int count);
 
 #endif
