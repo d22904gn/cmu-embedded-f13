@@ -18,14 +18,9 @@
 #define USR_STACK_START 0xa3000000
 #define USR_PROG_ENTRY  0xa2000000
 
-// Reference to our ASM SWI handler wrapper.
-extern void swi_handler();
-extern void setup_usermode();
+#include "kernel.h"
 
-// Stores old U-Boot SWI handler instructions.
-extern long long uboot_swi_handler;
-
-int main(int argc, char *argv[]) {
+int main(int argc, char** argv) {
     /*
      * Install SWI handler
      */
@@ -51,8 +46,12 @@ int main(int argc, char *argv[]) {
     // Save U-Boot SWI handler into global var.
     uboot_swi_handler = *var_swi_handler;
 
-    int* swi_handler_addr = (int*) var_swi_handler;
+    // var_swi_handler is the address of the address to the swi handler.
+    int* swi_handler_addr = (int*) *((int*) var_swi_handler);
     // Load our own SWI handler.
+    printf("swi_handler_addr = %x\n", (int) swi_handler_addr);
+    printf("swi_handler_function_addr = %x\n", (int) swi_handler);
+
     *swi_handler_addr = (LDR_OPCODE_DOWN | 0x04);
     *(swi_handler_addr + 1) = (int) &swi_handler;
 

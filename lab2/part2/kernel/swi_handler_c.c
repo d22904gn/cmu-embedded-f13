@@ -7,19 +7,21 @@
  * Date:    10 Oct 2013
  */
 
-#include <exports.h>
-#include "syscalls.h"
+// #include <exports.h>
+// #include "syscalls.h"
 
-void swi_handler_c(int swi_num, void *r) {
+#include "swi_handler_c.h"
+void swi_handler_c(int swi_num, int *r) {
+    puts("IN SWI_HANDLER_C\n");
     switch (swi_num) {
-    case EXIT_SWI:
-        exit(r[0]);
-    case READ_SWI:
-        read(r[0], r[1], r[2]);
-    case WRITE_SWI:
-        write(r[0], r[1], r[2])
-    default:
-        puts("Illegal SWI number!\n");
-        exit(0x0badc0de);
+        case EXIT_SWI:
+            exit(r[0]);
+        case READ_SWI:
+            read(r[0], r[1], r[2]);
+        case WRITE_SWI:
+            write(r[0], r[1], r[2])
+        default:
+            printf("Illegal SWI number! - %d\n", swi_num);
+            exit(0x0badc0de);
     }
 }
