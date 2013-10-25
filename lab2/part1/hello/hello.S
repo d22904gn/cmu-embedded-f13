@@ -14,7 +14,7 @@
     .global	_start
 _start:
     mov r0, #STDOUT_FILENO  @ Load fd for stdout
-    ldr r1, hello_str       @ Load string address
+    ldr r1, =hello_str      @ Load string address
     mov r2, #hello_size     @ Load string length
     swi WRITE_SWI           @ Write hello world to stdout
     mov r0, #0

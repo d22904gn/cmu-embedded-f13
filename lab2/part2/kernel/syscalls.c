@@ -68,10 +68,11 @@ ssize_t read(int fd, void *buf, size_t count) {
         case CR:
             *buffer = '\n';
             read_count++;
-            puts("\n");
+            putc('\n');
             
             return read_count;
         default:
+            putc(c);
             *buffer++ = c;
             read_count++;
         }
