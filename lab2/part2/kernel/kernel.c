@@ -8,6 +8,8 @@
  */
 
 #include <exports.h>
+#include "common.h"
+#include "uboot_swi.h"
 #include "syscalls.h"
 
 #define PREFETCH_OFFSET 0x8
@@ -18,49 +20,47 @@
 #define USR_STACK_START 0xa3000000
 #define USR_PROG_ENTRY  0xa2000000
 
-#include "kernel.h"
-#include "swi_handler_c.h"
+// References to external ASM functions
+void swi_handler();
+void setup_usermode(int argc, char** argv);
 
 int main(int argc, char** argv) {
     /*
+     * Backup the U-Boot stack pointer. (For easy exit)
+     */
+    asm("mov %[var], sp" : [var] "=r" (uboot_sp) : );
+    
+    /*
      * Install SWI handler
      */
-
     // Obtain SWI vector.
-    int* swi_vector_addr = (int*) SWI_VEC_ADDR;
-    int swi_vector = *swi_vector_addr;
+    uint swi_vec_contents = *((uint*) SWI_VEC_ADDR);
 
     // Check that SWI vector is valid and exit if not.
-    int swi_vector_instr = swi_vector & ~LDR_IMM_MASK;
-    if (swi_vector_instr != LDR_OPCODE_UP && swi_vector_instr != LDR_OPCODE_DOWN) {
+    uint swi_vector_instr = swi_vec_contents & ~LDR_IMM_MASK;
+    if (swi_vector_instr != LDR_OPCODE_UP &&
+        swi_vector_instr != LDR_OPCODE_DOWN) {
         puts("Unrecognized SWI Vector!\n");
-        printf("%x\n",swi_vector_instr);
-        printf("%x\n",swi_vector);
         return 0x0badc0de;
     }
 
     // Extract the LDR immediate load U-Boot's SWI handler addr.
     int sign = (swi_vector_instr == LDR_OPCODE_UP) ? 1 : -1;
-    int swi_vec_imm = (swi_vector & LDR_IMM_MASK) * sign;
-    long long *var_swi_handler = (long long *) (SWI_VEC_ADDR + PREFETCH_OFFSET + swi_vec_imm);
+    int swi_vec_imm = (swi_vec_contents & LDR_IMM_MASK) * sign;
+    uboot_handler_addr = *((uint**) (SWI_VEC_ADDR + PREFETCH_OFFSET +
+                                      swi_vec_imm));
 
     // Save U-Boot SWI handler into global var.
-    uboot_swi_handler = *var_swi_handler;
+    uboot_swi_instr1 = *uboot_handler_addr;
+    uboot_swi_instr2 = *(uboot_handler_addr + 1);
+    
+    // Install our new SWI handler.
+    *uboot_handler_addr = LDR_OPCODE_DOWN | 0x04;
+    *(uboot_handler_addr + 1) = (uint) &swi_handler;
 
-    int* swi_handler_addr = (int*) *((int*) var_swi_handler);
-    printf("swi_handler_addr = %x\n", (int) swi_handler_addr);
-    printf("swi_handler_function_addr = %x\n", (int) swi_handler);
-
-    *swi_handler_addr = (LDR_OPCODE_DOWN | 0x04);
-    *(swi_handler_addr + 1) = (int) &swi_handler;
-
-    puts("GOING TO SETUP_USERMODE...\n");
-
-
-    //Switch to user mode with IRQs & FIQs masked.
-    //Setup a full descending user mode stack (with the stack top at 0xa3000000).
-    //Push U-Boot’s argc & argv on the user stack.
-    //Jump to a loaded user program at address 0xa2000000.
+    /*
+     * Setup usermode stuff.
+     */
     setup_usermode(argc, argv);
 
     return 0; // To satisfy GCC

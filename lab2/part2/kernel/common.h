@@ -1,5 +1,5 @@
 /*
- * swi_handler.c: Custom SWI handler
+ * common.h: Declares common stuff like typedefs, etc.
  *
  * Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -7,7 +7,10 @@
  * Date:    10 Oct 2013
  */
 
-#include <exports.h>
-#include "syscalls.h"
+#ifndef COMMON_H
+#define COMMON_H
 
-extern void swi_handler_c(int swi_num, int *r);
+// Some typedefs for readability
+typedef unsigned int uint;
+
+#endif

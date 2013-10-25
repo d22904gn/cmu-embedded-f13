@@ -11,17 +11,21 @@
     .type   exit, %function
     
 exit:
-    @ ** NOTE: USING OABI CONVENTION **
-
     @ Restore U-Boot SWI handler
-    strfd   sp!, {r0, r1}  @ Save scratch registers
-    ldr     r0, [sp, #8]   @ Load SWI handler addr
-    ldr     r1, [sp, #16]
-    str     r1, [r0]       @ Write back 1st instruction.
-    ldr     r1, [sp, #12]
-    str     r1, [r0, #4]   @ Write back 2nd instruction.    
-    ldmfd   sp!, {r0, r1}  @ Restore scratch registers
-    add     sp, sp, #12    @ Remove stored U-Boot code from stack
-
+    push    {r0, r1}
+    ldr     r0, =uboot_handler_addr     @ Load SWI handler addr
+    ldr     r1, =uboot_swi_instr1
+    str     r1, [r0]                    @ Write back 1st instruction.
+    add     r0, r0, #4
+    ldr     r1, =uboot_swi_instr2
+    str     r1, [r0]                    @ Write back 2nd instruction.
+    pop     {r0, r1}
+    
+    @ Cleanup the stack from main()
+    ldr     r4, =uboot_sp
+    ldr     sp, [r4]
+    add     sp, sp, #4
+    pop     {r4, r5, lr}
+    
     @ Go back to U-Boot
-    mov    pc, lr
+    bx      lr

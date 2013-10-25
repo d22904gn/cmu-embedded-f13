@@ -12,9 +12,8 @@
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
 
-// TODO:
 void exit(int status); // Implemented in ASM
-//ssize_t readss(int fd, void *buf, int count);
-//ssize_t write(int fd, void *buf, int count);
+ssize_t read(int fd, void *buf, size_t count);
+ssize_t write(int fd, const void *buf, size_t count);
 
 #endif
