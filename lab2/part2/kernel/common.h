@@ -12,5 +12,5 @@
 
 // Some typedefs for readability
 typedef unsigned int uint;
-
+typedef unsigned char uchar;
 #endif

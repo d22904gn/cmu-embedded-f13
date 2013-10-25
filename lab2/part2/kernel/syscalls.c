@@ -14,36 +14,39 @@
 #include "syscalls.h"
 
 // Memory ranges
-#define RAM_START   0xa0000000
-#define RAM_END     0xa3ffffff
-#define ROM_START   0x00000000
-#define ROM_END     0x00ffffff
+#define RAM_START   0xa0000000u
+#define RAM_END     0xa3ffffffu
+#define ROM_START   0x00000000u
+#define ROM_END     0x00ffffffu
 
 // Special characters
-#define EOT         4
-#define BACKSPACE   8
-#define DELETE      127
-#define NEWLINE     10
-#define CR          13
+#define EOT         4u
+#define BACKSPACE   8u
+#define DELETE      127u
+#define NEWLINE     10u
+#define CR          13u
 
 ssize_t read(int fd, void *buf, size_t count) {
     // Temp local vars
-    char c;
+    uchar c;
     uint read_count = 0;
     
     // Re-cast buf into char pointer.
-    char *buffer = (char *) buf;
-    char *buffer_end = buffer + count - 1; // Readability
+    uchar *buffer = (uchar *) buf;
+    
+    // For readability
+    uint buffer_start = (uint) buffer;
+    uint buffer_end = ((uint) buffer) + count - 1; 
     
     // Sanity checks.
     if (fd != STDIN_FILENO)
         return -EBADF;
-    if (!(buffer >= (char*) RAM_START && buffer_end <= (char*) RAM_END))
+    if (!(buffer_start >= RAM_START && buffer_end <= RAM_END))
         return -EFAULT;
     
     // Read chars from stdin until buffer is full.
     while (read_count != count) {
-        c = getc();
+        c = (uchar) getc();
         
         switch (c) {
         case EOT:
@@ -82,14 +85,17 @@ ssize_t write(int fd, const void *buf, size_t count) {
     uint write_count = 0;
     
     // Re-cast buf into char pointer.
-    char *buffer = (char *) buf;
-    char *buffer_end = buffer + count - 1; // Readability
+    uchar *buffer = (uchar *) buf;
+    
+    // For readability
+    uint buffer_start = (uint) buffer;
+    uint buffer_end = ((uint) buffer) + count - 1; 
     
     // Sanity checks.
     if (fd != STDOUT_FILENO)
         return -EBADF;
-    if (!((buffer >= (char*) ROM_START && buffer_end <= (char*) ROM_END) ||
-          (buffer >= (char*) RAM_START && buffer_end <= (char*) RAM_END)))
+    if (!((buffer_start >= ROM_START && buffer_end <= ROM_END) ||
+          (buffer_start >= RAM_START && buffer_end <= RAM_END)))
         return -EFAULT;
     
     while (write_count != count) {

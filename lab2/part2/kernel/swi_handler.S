@@ -12,7 +12,7 @@
 
 swi_handler:
     sub     sp, sp, #4          @ Save space on the stack for spsr
-	push    {r0-r12, lr}   @ Save user registers and link register.
+    push    {r0-r12, lr}        @ Save user registers and link register.
 
     @ Save spsr
     mrs     r2, spsr

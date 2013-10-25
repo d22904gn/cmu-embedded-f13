@@ -12,13 +12,13 @@
 #include "uboot_swi.h"
 #include "syscalls.h"
 
-#define PREFETCH_OFFSET 0x8
-#define SWI_VEC_ADDR    0x8
-#define LDR_OPCODE_UP   0xe59ff000
-#define LDR_OPCODE_DOWN 0xe51ff000
-#define LDR_IMM_MASK    0x00000fff
-#define USR_STACK_START 0xa3000000
-#define USR_PROG_ENTRY  0xa2000000
+#define PREFETCH_OFFSET 8
+#define SWI_VEC_ADDR    0x8u
+#define LDR_OPCODE_UP   0xe59ff000u
+#define LDR_OPCODE_DOWN 0xe51ff000u
+#define LDR_IMM_MASK    0x00000fffu
+#define USR_STACK_START 0xa3000000u
+#define USR_PROG_ENTRY  0xa2000000u
 
 // References to external ASM functions
 void swi_handler();
