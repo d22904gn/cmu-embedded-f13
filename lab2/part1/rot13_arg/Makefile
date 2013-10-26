@@ -24,7 +24,7 @@ rot13_arg: $(objects)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f rot13 $(objects)
+	rm -f rot13_arg $(objects)
 
 clobber: clean
-	rm -f rot13.bin
+	rm -f rot13_arg.bin
