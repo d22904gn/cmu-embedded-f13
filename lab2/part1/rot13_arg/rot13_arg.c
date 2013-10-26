@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
     int arg_len = 0;
     
     // Print out arguments first.
+    write_string("Plaintext: ", 11);
     while (i < argc) {
         // Obtain argument length
         arg_len = 0;
@@ -62,6 +63,7 @@ int main(int argc, char **argv) {
     write_string("\n", 1);
     
     // Now print out ROT13 applied to arguments.
+    write_string("Ciphertext: ", 12);
     i = 1;
     while (i < argc) {
         // Obtain argument length
