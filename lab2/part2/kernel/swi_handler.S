@@ -25,6 +25,10 @@ swi_handler:
     mov     lr, pc
     ldr     pc, =swi_handler_c  @ Jump to our C SWI handler.
 
+    @ Restore spsr
+    ldr     r2, [sp, #56]
+    msr     spsr, r2
+
     @ Restore old registers. Do not restore r0; it has the syscall return val.
     add     sp, sp, #4          @ Bypass r0 in the stack.
     pop     {r1-r12, lr}
