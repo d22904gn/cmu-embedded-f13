@@ -47,31 +47,31 @@ void write_string(char* buffer, unsigned int str_len) {
 
 int main(int argc, char** argv) {
     char buf[BUF_SIZE];
-    int readSize, i, j;
+    int readSize, i;
     unsigned int str_len;
     char* plain_text = "plain text: ";
     char* cipher_text = "cipher text: ";
     char* new_line = "\n";
+    i = 0;
 
     // Do initial encryption of command line arguments.
     for (i = 1; i < argc; i++) {
-        char* str_buf = argv[i];
         // Write "plain text: "
         write_string(plain_text, 12);
         str_len = 0;
         // Calculate the string length.
-        while (str_buf[str_len] != 0) {
+        while (argv[i][str_len] != 0) {
             str_len++;
         }
 
         // Write the plain text string.
-        write_string(str_buf, str_len);
+        write_string(argv[i], str_len);
         write_string(new_line, 1);
 
         write_string(cipher_text, 13);
-        applyROT13(str_buf, str_len);
+        applyROT13(argv[i], str_len);
         // Write to stdout what we have so far.
-        write_string(str_buf, str_len);
+        write_string(argv[i], str_len);
         write_string(new_line, 1);
         // Insert a new line to separate the words.
         write_string(new_line, 1);
