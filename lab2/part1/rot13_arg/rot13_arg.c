@@ -1,18 +1,24 @@
 /*
- * rot13_arg.c: ROT13 cipher - command line args version.
+ * rot13.c: ROT13 cipher test application
  *
  * Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
- * Date:    20 Oct 2013
+ * Date:    10 Oct 2013
  */
 
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 
+// Fix a buffer size.
+#define BUF_SIZE 64
+
+// Character code for our exit character.
+#define EXIT_CHAR 3
+
 // Applies ROT13 encoding to the input char array in-place.
-int apply_ROT13(char *input, unsigned int len) {
+void apply_ROT13(char *input, unsigned int len) {
     int i;
 
     for (i = 0; i < len; i++) {
@@ -24,65 +30,81 @@ int apply_ROT13(char *input, unsigned int len) {
             input[i] -= 13;
         }
     }
-
-    return 0;
 }
 
-// Writes a string to stdout.
-void write_string(char *str, unsigned int len) {
-    int write_size = 0;
+// Writes a string to standard out.
+void write_string(char* buffer, unsigned int len) {
+    // Loop and write until we have finished writing everything in
+    // the buffer.
+    int write_size;
     
-    do {
-        if ((write_size = write(STDOUT_FILENO, str, len)) < 0) {
-            exit(1);
-        }
-        len -= write_size;
-    } while (len > 0);
+    if (len != 0) {
+        do {
+            if ((write_size = write(STDOUT_FILENO, buffer, len)) < 0) {
+                exit(1);
+            }
+            len -= write_size;
+        } while (len > 0);
+    }
 }
 
-int main(int argc, char **argv) {
-    int i = 1;
-    int arg_len = 0;
+int main(int argc, char** argv) {
+    char buf[BUF_SIZE];
+    int read_size;
+    unsigned int str_len, i;
     
-    // Print out arguments first.
-    write_string("Plaintext: ", 11);
-    while (i < argc) {
-        // Obtain argument length
-        arg_len = 0;
-        while (argv[i][arg_len] != 0) {
-            arg_len++;
+    // Output command line arguments.
+    
+    // -- First as plain text.
+    if (argc > 1) write_string("Args in plaintext:  ", 20);
+    for (i = 1; i < argc; i++) {
+        // Calculate the string length.
+        str_len = 0;
+        while (argv[i][str_len] != 0) {
+            str_len++;
         }
-        
-        // Write argument and space to stdout.
-        write_string(argv[i], arg_len);
+    
+        // Write the plain text string.
+        write_string(argv[i], str_len);
         write_string(" ", 1);
-        
-        i++;
     }
     
-    write_string("\n", 1);
-    
-    // Now print out ROT13 applied to arguments.
-    write_string("Ciphertext: ", 12);
-    i = 1;
-    while (i < argc) {
-        // Obtain argument length
-        arg_len = 0;
-        while (argv[i][arg_len] != 0) {
-            arg_len++;
+    // -- Then as ciphertext.
+    if (argc > 1) write_string("\nArgs in ciphertext: ", 21);
+    for (i = 1; i < argc; i++) {
+        // Calculate the string length.
+        str_len = 0;
+        while (argv[i][str_len] != 0) {
+            str_len++;
         }
-        
-        // Apply ROT13 to argument.
-        apply_ROT13(argv[i], arg_len);
-        
-        // Write argument and space to stdout.
-        write_string(argv[i], arg_len);
+    
+        // Write the ciphertext.
+        apply_ROT13(argv[i], str_len);
+        write_string(argv[i], str_len);
         write_string(" ", 1);
-        
-        i++;
     }
+    if (argc > 1) write_string("\n\n", 2);
     
-    write_string("\n", 1);
-    
-    return 0;
+    // Start encrypting from stdin.
+    write_string("Encrypting from standard input (Type Ctrl-C + Enter to exit):\n", 62);
+    while (1) {
+        // Reset input size.
+        read_size = 0;
+
+        // Read input from stdin until we reach EOF (read_size = 0)
+        do {
+            if ((read_size = read(STDIN_FILENO, buf, BUF_SIZE)) < 0) exit(1);
+            
+            // Check if user wants to exit.
+            if (buf[0] == EXIT_CHAR) return 0;
+            
+            // Encrypt input
+            apply_ROT13(buf, read_size);
+            
+            // Write to stdout what we have so far.
+            if (read_size != 0) write_string(buf, read_size);
+        } while (read_size != 0);
+        
+        write_string("\n", 1);
+    }
 }
