@@ -1,5 +1,5 @@
 /*
- * rot13.c: ROT13 cipher test application
+ * rot13_arg.c: ROT13 cipher test application, with argument support
  *
  * Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
