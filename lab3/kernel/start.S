@@ -1,13 +1,12 @@
 /**
- * @file  start.S
+ * @file    start.S
  *
- * @brief Kernel startup routine
+ * @brief   Kernel startup routine
  *
- * @author Mike Kasick <mkasick@andrew.cmu.edu>
- * @date   Tue, 23 Oct 2007 11:20:33 -0400
- *
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
- * @date   2008-07-06
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    02 Nov 2013
  */
 
 #include <asm.h>
