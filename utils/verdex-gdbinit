@@ -1,4 +1,5 @@
 python
+import gdb
 # Setup constants
 TASKS_DIR = "/home/loon/18-349/git/lab3/tasks/bin/"
 KERNEL_PATH = "/home/loon/18-349/git/lab3/kernel/kernel"
@@ -6,14 +7,24 @@ KERNEL_ENTRY = "0xa3000000"
 USER_ENTRY = "0xa0000000"
 
 # Setup symbol loading
-class Sym_User(gdb.Function):
+class LoadUserSymbol(gdb.Command):
+    """ Loads user symbols """
     def __init__(self):
-        super(Sym_User, self).__init__("sym_user")
+        super(LoadUserSymbol, self).__init__("usym", gdb.COMMAND_USER)
+    
+    def invoke(self, arg, from_tty):
+        try:
+            gdb.execute("add-symbol-file \"" + TASKS_DIR + arg + "\" " + USER_ENTRY, to_string = True)
+            print("Success!")
+        except Exception as e:
+            print("*** Could not load user symbols: " + e.args[0])
 
-    def invoke(self, task_name):
-        gdb.execute("add-symbol-file \"" + TASKS_DIR + task_name + "\" " + USER_ENTRY)
-Sym_User()
-gdb.execute("add-symbol-file \"" + KERNEL_PATH + "\" " + KERNEL_ENTRY)
+LoadUserSymbol()
+try:
+    gdb.execute(" \"" + KERNEL_PATH + "\" " + KERNEL_ENTR, to_string = True)
+    print("Loaded kernel symbols.")
+except Exception as e:
+    print("*** Could not load kernel symbols: " + e.args[0])
 
 # Start debugging
 gdb.execute("set architecture armv5te")
