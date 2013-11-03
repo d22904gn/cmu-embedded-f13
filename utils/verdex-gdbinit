@@ -29,6 +29,5 @@ except Exception as e:
 # Start debugging
 gdb.execute("set architecture armv5te")
 gdb.execute("target remote localhost:1234")
-gdb.execute("continue")
 end
 
