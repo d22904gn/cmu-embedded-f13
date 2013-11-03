@@ -1,0 +1,6 @@
+PROGS_ECHO_OBJS := echo.o
+PROGS_ECHO_OBJS := $(PROGS_ECHO_OBJS:%=$(TDIR)/echo/%)
+ALL_OBJS += $(PROGS_ECHO_OBJS)
+
+$(TDIR)/bin/echo : $(TSTART) $(PROGS_ECHO_OBJS) $(TLIBC)
+

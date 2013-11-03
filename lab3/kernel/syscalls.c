@@ -97,8 +97,8 @@ ssize_t write(int fd, const void *buf, size_t count) {
     // Sanity checks.
     if (fd != STDOUT_FILENO)
         return -EBADF;
-    if (!(buffer_end <= ROM_END) ||
-         (buffer_start >= RAM_START && buffer_end <= RAM_END))
+    if (!((buffer_end <= ROM_END) ||
+          (buffer_start >= RAM_START && buffer_end <= RAM_END)))
         return -EFAULT;
     
     while (write_count != count) {

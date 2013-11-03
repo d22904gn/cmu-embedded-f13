@@ -29,7 +29,7 @@ int kmain(int argc, char** argv, uint32_t table)
 {
 	app_startup(); /* bss is valid after this point */
 	global_data = table;
-
+    
     /*
      * Backup the U-Boot stack pointer. (For easy exit)
      */

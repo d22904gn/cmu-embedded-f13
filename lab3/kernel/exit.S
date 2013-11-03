@@ -24,8 +24,4 @@ exit:
     @ Cleanup the stack from main()
     ldr     r4, =uboot_sp
     ldr     sp, [r4]
-    add     sp, sp, #4
-    pop     {r4, r5, lr}
-    
-    @ Go back to U-Boot
-    bx      lr
+    ldmia   sp!, {r4, r5, r6, r7, r9, sl, pc}
