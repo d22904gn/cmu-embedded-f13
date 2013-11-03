@@ -21,7 +21,7 @@ class LoadUserSymbol(gdb.Command):
 
 LoadUserSymbol()
 try:
-    gdb.execute(" \"" + KERNEL_PATH + "\" " + KERNEL_ENTR, to_string = True)
+    gdb.execute("add-symbol-file \"" + KERNEL_PATH + "\" " + KERNEL_ENTRY, to_string = True)
     print("Loaded kernel symbols.")
 except Exception as e:
     print("*** Could not load kernel symbols: " + e.args[0])
