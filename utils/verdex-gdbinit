@@ -1,0 +1,22 @@
+python
+# Setup constants
+TASKS_DIR = "/home/loon/18-349/git/lab3/tasks/bin/"
+KERNEL_PATH = "/home/loon/18-349/git/lab3/kernel/kernel"
+KERNEL_ENTRY = "0xa3000000"
+USER_ENTRY = "0xa0000000"
+
+# Setup symbol loading
+class Sym_User(gdb.Function):
+    def __init__(self):
+        super(Sym_User, self).__init__("sym_user")
+
+    def invoke(self, task_name):
+        gdb.execute("add-symbol-file \"" + TASKS_DIR + task_name + "\" " + USER_ENTRY)
+Sym_User()
+gdb.execute("add-symbol-file \"" + KERNEL_PATH + "\" " + KERNEL_ENTRY)
+
+# Start debugging
+gdb.execute("set architecture armv5te")
+gdb.execute("target remote localhost:1234")
+end
+

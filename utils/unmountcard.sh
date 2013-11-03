@@ -1,6 +1,8 @@
 #!/bin/bash
 sync
 sudo umount ./sdcard
-sudo losetup -D
-sudo modprobe -r loop
+sleep 0.5
+sudo kpartx -d /dev/loop0
+sleep 0.5
+sudo losetup -d /dev/loop0
 rm -Rf sdcard
