@@ -2,7 +2,9 @@ KERNEL = $(KDIR)/kernel
 KSTART = $(KDIR)/start.o
 
 # All core kernel objects go here.  Add objects here if you need to.
-KOBJS := swi_handler.o swi_handler_c.o exit.o syscalls.o setup_usermode.o assert.o main.o raise.o
+KOBJS := syscalls/swi_handler.o syscalls/swi_handler_c.o \
+		 syscalls/exit.o syscalls/syscalls.o \
+		 setup_usermode.o assert.o main.o raise.o
 KOBJS := $(KOBJS:%=$(KDIR)/%)
 ALL_OBJS += $(KOBJS) $(KSTART)
 ALL_CLOBBERS += $(KERNEL) $(KERNEL).bin

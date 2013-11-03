@@ -1,10 +1,12 @@
-/*
- * syscalls.c: Kernel system calls.
+/**
+ * @file   syscalls.c
  *
- * Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ * @brief  Kernel system calls.
+ *
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
- * Date:    10 Oct 2013
+ * @date    03 Nov 2013
  */
 
 #include <bits/fileno.h>
@@ -107,4 +109,8 @@ ssize_t write(int fd, const void *buf, size_t count) {
     }
     
     return write_count;
+}
+
+unsigned long time() {
+    return 0;
 }

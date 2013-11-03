@@ -1,7 +1,7 @@
 /**
- * @file   setup_usermode.S
+ * @file    setup_usermode.S
  *
- * @brief  Setups usermode from kernel main.
+ * @brief   Setups usermode from kernel main.
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -11,6 +11,7 @@
 
 #include <asm.h>
 #include <bits/swi.h>
+
 #define USR_STACK_START 0xa3000000
 #define USR_PROG_ENTRY  0xa0000000
 

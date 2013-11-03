@@ -1,16 +1,19 @@
-@ swi_handler.S: Custom SWI handler
-@
-@ Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
-@          Chin Yang Oh <chinyano@andrew.cmu.edu>
-@          Jennifer Lee <jcl1@andrew.cmu.edu>
-@ Date:    12 Oct 2013
+/**
+ * @file    swi_handler.S
+ *
+ * @brief   Custom SWI handler
+ *
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    02 Nov 2013
+ */
+
+#include <asm.h>
 
     .file   "swi_handler.S"
-    .text
-    .global swi_handler
-    .type   swi_handler, %function
 
-swi_handler:
+FUNC(swi_handler)
     sub     sp, sp, #4          @ Save space on the stack for spsr
     push    {r0-r12, lr}        @ Save user registers and link register.
 

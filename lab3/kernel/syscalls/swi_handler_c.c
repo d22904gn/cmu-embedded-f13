@@ -1,10 +1,12 @@
-/*
- * swi_handler.c: Custom SWI handler in C.
+/**
+ * @file   swi_handler.c
  *
- * Authors: Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ * @brief  Custom SWI handler in C.
+ *
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
- * Date:    10 Oct 2013
+ * @date    03 Nov 2013
  */
 
 #include <bits/swi.h>
@@ -20,6 +22,11 @@ void swi_handler_c(uint32_t swi_num, int *r) {
         break;
     case WRITE_SWI:
         write(r[0], (void*) r[1], (size_t) r[2]);
+        break;
+    case TIME_SWI:
+        time();
+        break;
+    case SLEEP_SWI:
         break;
     default:
         puts("Illegal SWI number!\n");
