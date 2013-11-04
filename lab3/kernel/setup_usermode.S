@@ -31,17 +31,24 @@ FUNC(setup_usermode)
     @ Push U-Boot's argc & argv array on the user stack.
     @ Registers r0 and r1 contain the arguments to this function, which are
     @ U-Boot's argc and argv values respectively.
+    
+    @ Push null terminator onto the stack first.
+    mov     r2, #0
+    push    {r2}
+    
+    @ Start copying stuff onto the stack.
     mov     r2, r0, LSL #2          @ r2 = argc * 4 = number of bytes in argv
     add     r1, r1, r2              @ r1 = r1 + r2 = argv + 4*len(argv)
     mov     r3, r0                  @ r3 = argc
-
+    
 stack_loop:
     ldr     r2, [r1, #-4]!          @ Load argv[i] into r2 (desecending order)
     push    {r2}                    @ Push argv[i] onto the stack
     subs    r3, r3, #1
     blne    stack_loop
-
-    push    {r0}                    @ Push argc onto the stack.
+    
+    @ Push argc onto the stack.
+    push    {r0}
 
     @ Jump to a loaded user program.
     mov     lr, pc

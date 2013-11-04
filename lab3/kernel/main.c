@@ -1,7 +1,7 @@
 /**
- * @file   main.c
+ * @file    main.c
  *
- * @brief  Kernel main (entry) function
+ * @brief   Kernel main (entry) function
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -16,6 +16,7 @@
 #include <arm/interrupt.h>
 #include <arm/timer.h>
 #include "uboot_globals.h"
+#include "interrupts/timers.h"
 
 #define PREFETCH_OFFSET 8
 #define SWI_VEC_ADDR    0x8u
@@ -79,6 +80,20 @@ int kmain(int argc, char** argv, uint32_t table)
     asm volatile ("mov %[var], sp" : [var] "=r" (uboot_sp) : );
     
     /*
+     * Setup timing stuff
+     */
+    // Mask all interrupts except for timer interrupts
+    reg_write(INT_ICMR_ADDR, 1 << INT_OSTMR_0);
+    reg_set(INT_ICMR_ADDR, 1 << INT_OSTMR_1);
+    reg_write(INT_ICLR_ADDR, 0);
+    
+    // Init OSTMR1 to be our clock timer.
+    reg_write(OSTMR_OSMR_ADDR(1), UINT32_MAX);
+    
+    // Reset timer counter.
+    reg_write(OSTMR_OSCR_ADDR, 0);
+    
+    /*
      * Install handlers
      */
     // SWI
@@ -92,11 +107,6 @@ int kmain(int argc, char** argv, uint32_t table)
                                    uboot_irq_instr1, uboot_irq_instr2,
                                    (uint32_t) (&irq_handler));
     if (hijack_result != 0) return hijack_result;
-    
-    /*
-     * Disable all IRQs except for OS timer.
-     */
-    reg_write(INT_ICMR_ADDR, 1 << INT_OSTMR_0);
     
     /*
      * Setup usermode stuff.
