@@ -9,6 +9,11 @@
  * @date    03 Nov 2013
  */
 
+#include <exports.h>
+#include <arm/interrupt.h>
+#include <arm/timer.h>
+#include <arm/reg.h>
+
 #ifndef _TIMERS_H_
 #define _TIMERS_H_
 
@@ -16,6 +21,9 @@
 
 // Tracks # of clock overflows since kernel init.
 extern uint32_t clock_overflows;
+
+// Number of overflows used for sleep
+extern volatile int num_overflows;
 
 // Timer interrupt handlers.
 void handle_sleep();

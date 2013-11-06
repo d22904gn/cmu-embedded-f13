@@ -9,13 +9,9 @@
  * @date    03 Nov 2013
  */
 
-#include <exports.h>
-#include <inline.h>
-#include <types.h>
-#include <arm/reg.h>
-#include <arm/interrupt.h>
-#include "timers.h"
+#include "irq_handler.h"
 
+// ?? INT_OSTMR is the register addr?
 #define SLEEP_TIMER (1 << INT_OSTMR_0)
 #define TIME_TIMER  (1 << INT_OSTMR_1)
 
