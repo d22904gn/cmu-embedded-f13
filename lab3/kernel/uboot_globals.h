@@ -9,8 +9,6 @@
  * @date    02 Nov 2013
  */
 
-#include <types.h>
-
 #ifndef UBOOT_GLOBALS_H
 #define UBOOT_GLOBALS_H
 

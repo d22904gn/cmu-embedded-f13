@@ -1,7 +1,7 @@
 /**
  * @file    main.c
  *
- * @brief   Kernel main (entry) function
+ * @brief   Kernel kmain (entry) function
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -25,12 +25,16 @@
 #define LDR_OPCODE_DOWN 0xe51ff000u
 #define LDR_IMM_MASK    0x00000fffu
 
+// Program globals
 uint32_t global_data;
 uint32_t clock_overflows = 0;
+volatile uint32_t num_overflows = 0;
 
 // References to external functions
+void backup_sp();
 void swi_handler();
 void irq_handler();
+void setup_irq_mode();
 void setup_usermode(int argc, char** argv);
 
 // Generic handler hijacking function.
@@ -78,7 +82,7 @@ int kmain(int argc, char** argv, uint32_t table)
     /*
      * Backup the U-Boot stack pointer. (For easy exit)
      */
-    asm volatile ("mov %[var], sp" : [var] "=r" (uboot_sp) : );
+    backup_sp();
     
     /*
      * Setup timing stuff
@@ -89,11 +93,13 @@ int kmain(int argc, char** argv, uint32_t table)
     reg_write(INT_ICLR_ADDR, 0);
     
     // Init OSTMR1 to be our clock timer.
-    clock_overflows = 0;
     reg_write(OSTMR_OSMR_ADDR(1), UINT32_MAX);
     
-    // Reset timer counter.
+    // Reset timer counters
     reg_write(OSTMR_OSCR_ADDR, 0);
+    
+    // Setup stack pointer for IRQ mode.
+    setup_irq_mode();
     
     /*
      * Install handlers
@@ -111,7 +117,7 @@ int kmain(int argc, char** argv, uint32_t table)
     if (hijack_result != 0) return hijack_result;
     
     /*
-     * Setup usermode stuff.
+     * Setup usermode stuff and enable IRQs
      */
     setup_usermode(argc, argv);
 

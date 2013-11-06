@@ -9,29 +9,30 @@
  * @date    03 Nov 2013
  */
 
+#include <exports.h>
+#include <arm/interrupt.h>
+#include <arm/timer.h>
+#include <arm/reg.h>
 #include "timers.h"
 
-// Updates OSSR to indicate that a timer interrupt has been handled.
-void set_timer_handled(uint32_t timer) {
-    reg_set(OSTMR_OSSR_ADDR, timer);
-}
+/*
+ * Handle timer interrupts
+ */
 
-// Handle timer interrupts
+// Interrupt for sleep() calls.
 void handle_sleep() {
-    // Update timer registers
-    set_timer_handled(OSTMR_OSSR_M0);
-    
-    // Wake program up.
-    
-    // Increment num Overflows encountered
+    // Increment num overflows encountered
     num_overflows++;
     
     // Set Match Reg to fire next overflow again
-    unsigned long curr_tick = reg_read(OSTMR_OSCR_ADDR);
-    reg_write(OSTMR_OSSR_M0,curr_tick - 1);
+    reg_write(OSTMR_OSSR_M0, reg_read(OSTMR_OSCR_ADDR) - 1);
+    
+    // Signal interrupt handled.
+    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M0);
 }
 
+// Interrupt for time() calls.
 void handle_time() {
-    set_timer_handled(OSTMR_OSSR_M1);
     clock_overflows++;
+    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M1);
 }
