@@ -26,6 +26,7 @@
 #define LDR_IMM_MASK    0x00000fffu
 
 uint32_t global_data;
+uint32_t clock_overflows = 0;
 
 // References to external functions
 void swi_handler();
@@ -35,7 +36,7 @@ void setup_usermode(int argc, char** argv);
 // Generic handler hijacking function.
 int hijack_handler(uint32_t vec_addr, uint32_t *handler_addr,
                    uint32_t handler_instr1, uint32_t handler_instr2,
-                   uint32_t *new_handler) {
+                   uint32_t new_handler) {
     int sign, vec_imm;
     uint32_t vec_contents, vector_instr;
     
@@ -46,7 +47,7 @@ int hijack_handler(uint32_t vec_addr, uint32_t *handler_addr,
     vector_instr = vec_contents & ~LDR_IMM_MASK;
     if (vector_instr != LDR_OPCODE_UP &&
         vector_instr != LDR_OPCODE_DOWN) {
-        puts("Unrecognized vector at %p!\n", vec_addr);
+        printf("Unrecognized vector at 0x%x!\n", vec_addr);
         return 0x0badc0de;
     }
 
@@ -61,7 +62,7 @@ int hijack_handler(uint32_t vec_addr, uint32_t *handler_addr,
     handler_instr2 = *(handler_addr + 1);
     
     // Install our new handler.
-    *handler_addr = LDR_OPCODE_DOWN | 0x04;
+    *handler_addr = LDR_OPCODE_DOWN | 0x04u;
     *(handler_addr + 1) = new_handler;
     
     return 0;
@@ -88,6 +89,7 @@ int kmain(int argc, char** argv, uint32_t table)
     reg_write(INT_ICLR_ADDR, 0);
     
     // Init OSTMR1 to be our clock timer.
+    clock_overflows = 0;
     reg_write(OSTMR_OSMR_ADDR(1), UINT32_MAX);
     
     // Reset timer counter.

@@ -13,10 +13,7 @@
 #define _TIMERS_H_
 
 // Tracks # of clock overflows since kernel init.
-uint32_t clock_overflows = 0;
-
-// Asserted if sleep timer is currently being used.
-int sleep_timer_busy = 0;
+extern uint32_t clock_overflows;
 
 // Timer interrupt handlers.
 void handle_sleep();

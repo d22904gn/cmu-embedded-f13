@@ -4,7 +4,7 @@ KSTART = $(KDIR)/start.o
 # All core kernel objects go here.  Add objects here if you need to.
 KOBJS := syscalls/swi_handler.o syscalls/swi_handler_c.o \
 		 syscalls/exit.o syscalls/syscalls.o \
-		 interrupts/device_handlers.o interrupts/irq_handler.o \
+		 interrupts/timers.o interrupts/irq_handler.o \
 		 setup_usermode.o assert.o main.o raise.o
 KOBJS := $(KOBJS:%=$(KDIR)/%)
 ALL_OBJS += $(KOBJS) $(KSTART)

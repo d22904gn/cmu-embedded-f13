@@ -15,25 +15,21 @@
 #include <arm/reg.h>
 #include "timers.h"
 
-#define 
-
 // Updates OSSR to indicate that a timer interrupt has been handled.
-void set_timer_handled(uint32_t int_type) {
-    
+void set_timer_handled(uint32_t timer) {
+    reg_set(OSTMR_OSSR_ADDR, timer);
 }
 
 // Handle timer interrupts
 void handle_sleep() {
     // Update timer registers
+    set_timer_handled(OSTMR_OSSR_M0);
     
-    
-    // Release timer
-    timer_busy = 0;
-    
-    // Call the callback function.
-    timer_callback();
+    // Wake program up.
 }
 
 void handle_time() {
+    set_timer_handled(OSTMR_OSSR_M1);
     
+    clock_overflows++;
 }
