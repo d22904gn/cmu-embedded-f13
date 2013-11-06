@@ -12,11 +12,16 @@
 #ifndef _TIMERS_H_
 #define _TIMERS_H_
 
+#include <inline.h>
+
 // Tracks # of clock overflows since kernel init.
 extern uint32_t clock_overflows;
 
 // Timer interrupt handlers.
 void handle_sleep();
 void handle_time();
+
+// Convert a OSCR reading to milliseconds
+INLINE unsigned long get_ms(uint32_t counter_val)
 
 #endif
