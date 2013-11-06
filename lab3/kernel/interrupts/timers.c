@@ -9,13 +9,9 @@
  * @date    03 Nov 2013
  */
 
-#include <exports.h>
-#include <arm/interrupt.h>
 #include <arm/timer.h>
 #include <arm/reg.h>
 #include "timers.h"
-
-#include <exports.h>
 
 /*
  * Handle timer interrupts
@@ -23,11 +19,8 @@
 
 // Interrupt for sleep() calls.
 void handle_sleep() {
-    // Increment num overflows encountered
+    // Increment number of overflows encountered
     num_overflows++;
-    
-    // Set Match Reg to fire next overflow again
-    reg_write(OSTMR_OSMR_ADDR(0), reg_read(OSTMR_OSCR_ADDR) - 1);
     
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M0);

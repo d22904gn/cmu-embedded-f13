@@ -9,10 +9,8 @@
  * @date    03 Nov 2013
  */
 
-#include <types.h>
 #include <arm/reg.h>
 #include <arm/interrupt.h>
-#include <exports.h>
 
 // Defines masks to check which interrupt was asserted.
 #define SLEEP_TIMER (1 << INT_OSTMR_0)

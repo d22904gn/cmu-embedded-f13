@@ -9,14 +9,12 @@
  * @date    03 Nov 2013
  */
 
+#include <types.h>
 #include <exports.h>
-#include <arm/psr.h>
 #include <arm/reg.h>
-#include <arm/exception.h>
 #include <arm/interrupt.h>
 #include <arm/timer.h>
 #include "uboot_globals.h"
-#include "interrupts/timers.h"
 
 #define PREFETCH_OFFSET 8
 #define SWI_VEC_ADDR    0x8u
@@ -100,9 +98,14 @@ int kmain(int argc, char** argv, uint32_t table)
     if (hijack_result != 0) return hijack_result;
     
     /*
+     * Setup IRQ mode.
+     */
+    setup_irq_mode();
+    
+    /*
      * Setup timing stuff
      */
-    // Reset timer
+    // Reset timer (I.e. turn it on)
     reg_write(OSTMR_OSCR_ADDR, 0);
     
     // Mask all interrupts except for timer interrupts
@@ -117,11 +120,8 @@ int kmain(int argc, char** argv, uint32_t table)
     reg_write(OSTMR_OSMR_ADDR(1), 0);
     reg_write(OSTMR_OIER_ADDR, OSTMR_OIER_E0 | OSTMR_OIER_E1);
     
-    // Setup IRQ mode stack pointer.
-    setup_irq_mode();
-    
     /*
-     * Setup usermode stuff and enable IRQs
+     * Setup usermode stuff
      */
     setup_usermode(argc, argv);
 

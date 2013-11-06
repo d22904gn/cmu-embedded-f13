@@ -12,6 +12,8 @@
 #ifndef UBOOT_GLOBALS_H
 #define UBOOT_GLOBALS_H
 
+#include <types.h>
+
 // Stores U-Boot stack pointer upon entry to main().
 uint32_t uboot_sp;
 

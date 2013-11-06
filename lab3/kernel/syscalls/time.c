@@ -13,7 +13,6 @@
 #include <arm/reg.h>
 #include <arm/timer.h>
 #include "../interrupts/timers.h"
-#include <exports.h>
 
 // MATH!
 #define MS_PER_HOUR 3600000u
