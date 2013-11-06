@@ -18,12 +18,11 @@
     .file   "setup_usermode.S"
 
 FUNC(setup_usermode)
-    @ Switch to user mode with IRQs & FIQs masked
+    @ Switch to user mode, with IRQs enabled.
     mrs     r2, cpsr
-    bic     r2, r2, #0x1f           @ Clear mode bits.
-    orr     r2, r2, #0xd0           @ Disable FIQs and IRQs and change to user
-                                    @ mode by setting mode bits to 110 10000
-    msr     cpsr_c, r2              @ Change to user mode.
+    bic     r2, r2, #0xdf           @ Clear mode bits and IRQ bits
+    orr     r2, r2, #0x50           @ Change to user mode with IRQs
+    msr     cpsr_c, r2              @ Update CPSR
 
     @ Setup a full descending user mode stack
     ldr     sp, =USR_STACK_START

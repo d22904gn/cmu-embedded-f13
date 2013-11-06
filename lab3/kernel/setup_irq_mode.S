@@ -1,7 +1,7 @@
 /**
  * @file    setup_irq_mode.S
  *
- * @brief   Setups IRQ mode from kernel main.
+ * @brief   Setups IRQ mode stuff.
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -25,7 +25,7 @@ FUNC(setup_irq_mode)
     @ Setup the IRQ stack at the end of DRAM.
     ldr     sp, =IRQ_STACK_START
     
-    @ Return to system mode
+    @ Return to supervisor mode.
     msr     cpsr_c, r0
     
     @ Go back to main()

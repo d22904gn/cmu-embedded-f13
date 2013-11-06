@@ -9,9 +9,9 @@
  * @date    03 Nov 2013
  */
 
+#include <types.h>
 #include <bits/fileno.h>
 #include <bits/errno.h>
-#include <types.h>
 #include <exports.h>
 #include "io_constants.h"
 

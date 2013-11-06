@@ -27,7 +27,7 @@
 
 // Program globals
 uint32_t global_data;
-uint32_t clock_overflows = 0;
+volatile uint32_t clock_overflows = 0;
 volatile uint32_t num_overflows = 0;
 
 // References to external functions
@@ -85,23 +85,6 @@ int kmain(int argc, char** argv, uint32_t table)
     backup_sp();
     
     /*
-     * Setup timing stuff
-     */
-    // Mask all interrupts except for timer interrupts
-    reg_write(INT_ICMR_ADDR, 1 << INT_OSTMR_0);
-    reg_set(INT_ICMR_ADDR, 1 << INT_OSTMR_1);
-    reg_write(INT_ICLR_ADDR, 0);
-    
-    // Init OSTMR1 to be our clock timer.
-    reg_write(OSTMR_OSMR_ADDR(1), UINT32_MAX);
-    
-    // Reset timer counters
-    reg_write(OSTMR_OSCR_ADDR, 0);
-    
-    // Setup stack pointer for IRQ mode.
-    setup_irq_mode();
-    
-    /*
      * Install handlers
      */
     // SWI
@@ -115,6 +98,27 @@ int kmain(int argc, char** argv, uint32_t table)
                                    uboot_irq_instr1, uboot_irq_instr2,
                                    (uint32_t) (&irq_handler));
     if (hijack_result != 0) return hijack_result;
+    
+    /*
+     * Setup timing stuff
+     */
+    // Reset timer
+    reg_write(OSTMR_OSCR_ADDR, 0);
+    
+    // Mask all interrupts except for timer interrupts
+    reg_write(INT_ICMR_ADDR, 1 << INT_OSTMR_0);
+    reg_set(INT_ICMR_ADDR, 1 << INT_OSTMR_1);
+    reg_write(INT_ICLR_ADDR, 0);
+    
+    // Init match registers.
+    // OSTMR0 -> sleep()
+    // OSTMR1 -> time()
+    reg_write(OSTMR_OSMR_ADDR(0), 0);
+    reg_write(OSTMR_OSMR_ADDR(1), 0);
+    reg_write(OSTMR_OIER_ADDR, OSTMR_OIER_E0 | OSTMR_OIER_E1);
+    
+    // Setup IRQ mode stack pointer.
+    setup_irq_mode();
     
     /*
      * Setup usermode stuff and enable IRQs

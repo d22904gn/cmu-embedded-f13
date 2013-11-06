@@ -35,4 +35,4 @@ FUNC(exit)
     @ Cleanup the stack from main()
     ldr     r4, =uboot_sp
     ldr     sp, [r4]
-    ldmia   sp!, {r4, r5, r6, r7, sl, pc}
+    ldmia   sp!, {r4, r5, r6, r7, r9, sl, fp, pc}

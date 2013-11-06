@@ -1,0 +1,5 @@
+/home/loon/Desktop/18-349/git/lab3/kernel/setup_irqs.o:  \
+ /home/loon/Desktop/18-349/git/lab3/kernel/setup_irqs.S \
+  /home/loon/Desktop/18-349/git/lab3/kernel/include/asm.h
+
+/home/loon/Desktop/18-349/git/lab3/kernel/include/asm.h:

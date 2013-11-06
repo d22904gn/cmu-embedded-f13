@@ -15,7 +15,6 @@
 #include "../interrupts/timers.h"
 
 // Num milliseconds for each overflow
-// Verdex board 3.25 MHz with 32 bit unsigned int
 #define OVERFLOW_MS ((UINT_MAX / OSTMR_FREQ) * 1000)
 
 /* Sleep algorithm:
@@ -25,18 +24,18 @@
  */
 void sleep(unsigned long millis) {
     uint32_t num_overflows_needed = millis / OVERFLOW_MS;
-    unsigned long remainder = millis % OVERFLOW_MS;
-    unsigned long curr_ticks = reg_read(OSTMR_OSCR_ADDR);
+    uint32_t remainder = get_ticks(millis % OVERFLOW_MS);
+    uint32_t curr_ticks = reg_read(OSTMR_OSCR_ADDR);
     
     // Configure interrupts to occur in blocks of 10 minutes if needed.
-    reg_write(OSTMR_OSSR_M0, (uint32_t) curr_ticks);
+    reg_write(OSTMR_OSMR_ADDR(0), curr_ticks - 1);
     
     // Spin until num overflows reached
     while (num_overflows < num_overflows_needed);
     
     // Set IRQ to fire in remainder time
     curr_ticks = reg_read(OSTMR_OSCR_ADDR);
-    reg_write(OSTMR_OSSR_M0, (uint32_t) (curr_ticks + remainder));
+    reg_write(OSTMR_OSMR_ADDR(0), curr_ticks + remainder);
     
     // Spin until remainder time finished
     while (num_overflows == num_overflows_needed);

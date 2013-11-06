@@ -23,15 +23,14 @@ void swi_handler_c(uint32_t swi_num, int *r) {
     case WRITE_SWI:
         write(r[0], (void*) r[1], (size_t) r[2]);
         break;
-    /*case TIME_SWI:
+    case TIME_SWI:
         time();
         break;
     case SLEEP_SWI:
         sleep((unsigned long) r[0]);
-        break;*/
+        break;
     default:
-        puts("Illegal SWI number!\n");
-        printf("Illegal swi_num: %x", swi_num);
+        printf("Illegal SWI number: %x\n", swi_num);
         exit(0x0badc0de);
     }
 }

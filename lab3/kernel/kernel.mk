@@ -6,6 +6,7 @@ KOBJS := syscalls/swi_handler.o syscalls/swi_handler_c.o \
 		 syscalls/exit.o syscalls/read.o syscalls/write.o \
 		 syscalls/time.o syscalls/sleep.o \
 		 interrupts/timers.o interrupts/irq_handler.o \
+		 interrupts/irq_handler_c.o \
 		 setup_irq_mode.o setup_usermode.o backup_sp.o assert.o main.o \
 		 raise.o
 KOBJS := $(KOBJS:%=$(KDIR)/%)

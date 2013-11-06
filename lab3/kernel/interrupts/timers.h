@@ -12,22 +12,26 @@
 #ifndef TIMERS_H
 #define TIMERS_H
 
-#include <arm/timer.h>
 #include <inline.h>
+#include <types.h>
+#include <arm/timer.h>
 
 // Tracks # of clock overflows since kernel init.
-extern uint32_t clock_overflows;
+extern volatile uint32_t clock_overflows;
 
 // Number of overflows used for sleep
 extern volatile uint32_t num_overflows;
 
-// Timer interrupt handlers.
-void handle_sleep();
-void handle_time();
-
 // Convert a OSCR reading to milliseconds
 INLINE unsigned long get_ms(uint32_t counter_val) {
-    return (counter_val / OSTMR_FREQ) * 1000;
+    // Watch for overflow
+    return (((uint64_t) counter_val) * 1000) / OSTMR_FREQ;
+}
+
+// Convert milliseconds to num of OSCR ticks needed.
+// Assumes millis <= <counter size> / <clock freq>
+INLINE uint32_t get_ticks(uint32_t millis) {
+    return (OSTMR_FREQ * ((uint64_t) millis)) / 1000;
 }
 
 #endif
