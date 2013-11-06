@@ -9,10 +9,6 @@
  * @date    03 Nov 2013
  */
 
-#include <exports.h>
-#include <arm/interrupt.h>
-#include <arm/timer.h>
-#include <arm/reg.h>
 #include "timers.h"
 
 // Updates OSSR to indicate that a timer interrupt has been handled.
@@ -26,10 +22,16 @@ void handle_sleep() {
     set_timer_handled(OSTMR_OSSR_M0);
     
     // Wake program up.
+    
+    // Increment num Overflows encountered
+    num_overflows++;
+    
+    // Set Match Reg to fire next overflow again
+    unsigned long curr_tick = reg_read(OSTMR_OSCR_ADDR);
+    reg_write(OSTMR_OSSR_M0,curr_tick - 1);
 }
 
 void handle_time() {
     set_timer_handled(OSTMR_OSSR_M1);
-    
     clock_overflows++;
 }

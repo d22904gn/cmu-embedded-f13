@@ -5,6 +5,7 @@ KSTART = $(KDIR)/start.o
 KOBJS := syscalls/swi_handler.o syscalls/swi_handler_c.o \
 		 syscalls/exit.o syscalls/syscalls.o \
 		 interrupts/timers.o interrupts/irq_handler.o \
+		 interrupts/sleep.o \
 		 setup_usermode.o assert.o main.o raise.o
 KOBJS := $(KOBJS:%=$(KDIR)/%)
 ALL_OBJS += $(KOBJS) $(KSTART)
