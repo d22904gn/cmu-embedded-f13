@@ -1,7 +1,7 @@
 /**
  * @file    timers.c
  *
- * @brief   Support code for timing.
+ * @brief   Support code for handling timing interrupts.
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -14,13 +14,22 @@
 #include "timers.h"
 
 /*
- * Handle timer interrupts
+ * Globals
+ */
+// Tracks # of clock overflows since kernel init.
+volatile uint32_t clock_overflows = 0;
+
+// Tracks number of sleep interrupts encountered so far.
+volatile uint32_t sleep_interrupts = 0;
+
+/*
+ * Timer interrupt handlers
  */
 
 // Interrupt for sleep() calls.
 void handle_sleep() {
-    // Increment number of overflows encountered
-    num_overflows++;
+    // Increment number of interrupts encountered
+    sleep_interrupts++;
     
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M0);

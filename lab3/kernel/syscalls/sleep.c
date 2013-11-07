@@ -17,26 +17,26 @@
 // Num milliseconds for each overflow
 #define OVERFLOW_MS ((UINT_MAX / OSTMR_FREQ) * 1000)
 
-/* Sleep algorithm:
+/* 
+ * Sleep algorithm:
  *   1. Split time to wait into blocks of 10 minutes (Time to overflow)
  *   2. Wait out as many 10 minute blocks as needed.
  *   3. Wait out last remaining block.
  */
 void sleep(unsigned long millis) {
-    uint32_t num_overflows_needed = millis / OVERFLOW_MS;
+    // Step 1
+    uint32_t overflows_needed = millis / OVERFLOW_MS;
     uint32_t remainder = get_ticks(millis % OVERFLOW_MS);
-    uint32_t curr_ticks = reg_read(OSTMR_OSCR_ADDR);
     
-    // Configure interrupts to occur in blocks of 10 minutes if needed.
-    reg_write(OSTMR_OSMR_ADDR(0), curr_ticks - 1);
+    // Step 2
+    reg_write(OSTMR_OSMR_ADDR(0), reg_read(OSTMR_OSCR_ADDR));
+    while (sleep_interrupts < overflows_needed);
     
-    // Spin until num overflows reached
-    while (num_overflows < num_overflows_needed);
+    // Step 3
+    reg_write(OSTMR_OSMR_ADDR(0),
+              reg_read(OSTMR_OSCR_ADDR) + remainder);
+    while (sleep_interrupts == overflows_needed);
     
-    // Set IRQ to fire in remainder time
-    curr_ticks = reg_read(OSTMR_OSCR_ADDR);
-    reg_write(OSTMR_OSMR_ADDR(0), curr_ticks + remainder);
-    
-    // Spin until remainder time finished
-    while (num_overflows == num_overflows_needed);
+    // Reset sleep_interrupts, since we are done.
+    sleep_interrupts = 0;
 }

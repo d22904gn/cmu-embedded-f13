@@ -14,23 +14,24 @@
     .file   "irq_handler.S"
 
 FUNC(irq_handler)
-    sub     sp, sp, #4          @ Save space on the stack for spsr
-    push    {r0-r12, lr}        @ Save user registers and link register.
-
-    @ Save spsr
-    mrs     r2, spsr
-    str     r2, [sp, #56]       @ Store spsr above the gp registers
+    @ Save spsr and link register
+    mrs     r0, spsr
+    push    {r0, lr}
+    
+    @ Safe to re-enable interrupts here.
+    @ XXX: For later labs
 
     @ Call our C IRQ handler
     mov     lr, pc
     ldr     pc, =irq_handler_c
+    
+    @ Mask interrupts before cleaning up.
+    @ XXX: For later labs
 
-    @ Restore spsr
-    ldr     r2, [sp, #56]
-    msr     spsr, r2
-
-    @ Restore old registers. Do not restore r0; it has the syscall return val.
-    pop     {r0-r12, lr}
+    @ Restore spsr and lr
+    pop     {r0}
+    msr     spsr, r0
+    pop     {lr}
 
     @ Return to spsr state.
     movs    pc, lr

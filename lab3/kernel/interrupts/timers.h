@@ -1,7 +1,7 @@
 /**
  * @file    timers.h
  *
- * @brief   Support code defintions for timing-related stuff.
+ * @brief   Support code declarations for timing-related stuff.
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -19,8 +19,8 @@
 // Tracks # of clock overflows since kernel init.
 extern volatile uint32_t clock_overflows;
 
-// Number of overflows used for sleep
-extern volatile uint32_t num_overflows;
+// Tracks number of sleep interrupts encountered so far.
+extern volatile uint32_t sleep_interrupts;
 
 // Convert a OSCR reading to milliseconds
 INLINE unsigned long get_ms(uint32_t counter_val) {

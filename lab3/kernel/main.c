@@ -23,10 +23,7 @@
 #define LDR_OPCODE_DOWN 0xe51ff000u
 #define LDR_IMM_MASK    0x00000fffu
 
-// Program globals
 uint32_t global_data;
-volatile uint32_t clock_overflows = 0;
-volatile uint32_t num_overflows = 0;
 
 // References to external functions
 void backup_sp();
