@@ -16,15 +16,19 @@
 FUNC(swi_handler)
     sub     sp, sp, #4          @ Save space on the stack for spsr
     push    {r0-r12, lr}        @ Save user registers and link register.
-
-    @ Save spsr
-    mrs     r2, spsr
-    str     r2, [sp, #56]       @ Store spsr above the gp registers
+    
+    @ Restore U-Boot export table.
+    ldr     r2, =uboot_exports
+    ldr     r8, [r2]
     
     @ Enable interrupts.
     mrs     r2, cpsr
     bic     r2, r2, #0x80
     msr     cpsr_c, r2
+
+    @ Save spsr
+    mrs     r2, spsr
+    str     r2, [sp, #56]       @ Store spsr above the gp registers
 
     @ Call our C SWI handler
     ldr     r0, [lr, #-4]       @ Pass in swi number
@@ -32,7 +36,7 @@ FUNC(swi_handler)
     mov     r1, sp              @ Pass in saved register array
     mov     lr, pc
     ldr     pc, =swi_handler_c  @ Jump to our C SWI handler.
-
+    
     @ Restore spsr
     ldr     r2, [sp, #56]
     msr     spsr, r2

@@ -35,7 +35,7 @@ void write_string(const char* buffer, unsigned int len) {
 
 int main(int argc, char** argv) {
     char buf[BUF_SIZE];
-    int read_size, write_size;
+    int read_size;
     int str_len, i;
     
     // Output command line arguments.
@@ -47,16 +47,7 @@ int main(int argc, char** argv) {
         }
     
         // Write the plain text string.
-        // >>> QEMU Bug; cannot call subroutine with argv and argc.
-        if (str_len != 0) {
-            do {
-                if ((write_size = write(STDOUT_FILENO, argv[i], str_len)) < 0) {
-                    exit(1);
-                }
-                str_len -= write_size;
-            } while (str_len > 0);
-        }
-        
+        write_string(argv[i], str_len);
         write_string(" ", 1);
     }
     if (argc > 1) write_string("\n\n", 2);

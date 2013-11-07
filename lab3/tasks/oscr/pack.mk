@@ -1,6 +1,0 @@
-PROGS_OSCR_OBJS := oscr.o
-PROGS_OSCR_OBJS := $(PROGS_OSCR_OBJS:%=$(TDIR)/oscr/%)
-ALL_OBJS += $(PROGS_OSCR_OBJS)
-
-$(TDIR)/bin/oscr : $(TSTART) $(PROGS_OSCR_OBJS) $(TLIBC)
-

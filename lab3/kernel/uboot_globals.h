@@ -17,6 +17,9 @@
 // Stores U-Boot stack pointer upon entry to main().
 extern uint32_t uboot_sp;
 
+// Stores U-Boot exports table.
+extern uint32_t uboot_exports;
+
 /*
  * SWI Stuff
  */

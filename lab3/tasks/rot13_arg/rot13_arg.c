@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
         }
     
         // Write the plain text string.
-        write(STDOUT_FILENO, argv[i], str_len);
+        write_string(argv[i], str_len);
         write_string(" ", 1);
     }
     
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     
         // Write the ciphertext.
         apply_ROT13(argv[i], str_len);
-        write(STDOUT_FILENO, argv[i], str_len);
+        write_string(argv[i], str_len);
         write_string(" ", 1);
     }
     if (argc > 1) write_string("\n\n", 2);

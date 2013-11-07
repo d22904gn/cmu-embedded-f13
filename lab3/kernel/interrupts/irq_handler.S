@@ -18,6 +18,8 @@ FUNC(irq_handler)
     mrs     r0, spsr
     push    {r0, lr}
     
+    @ XXX: Restore export table if you intend to use U-Boot exports!
+    
     @ Safe to re-enable interrupts here.
     @ XXX: For later labs
 

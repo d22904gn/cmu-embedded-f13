@@ -24,14 +24,13 @@ extern volatile uint32_t sleep_interrupts;
 
 // Convert a OSCR reading to milliseconds
 INLINE unsigned long get_ms(uint32_t counter_val) {
-    // Watch for overflow
-    return (((uint64_t) counter_val) * 1000) / OSTMR_FREQ;
+    return (counter_val / OSTMR_FREQ) * 1000;
 }
 
 // Convert milliseconds to num of OSCR ticks needed.
 // Assumes millis <= <counter size> / <clock freq>
 INLINE uint32_t get_ticks(uint32_t millis) {
-    return (OSTMR_FREQ * ((uint64_t) millis)) / 1000;
+    return (OSTMR_FREQ / 1000) * millis;
 }
 
 #endif

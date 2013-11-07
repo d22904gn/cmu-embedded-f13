@@ -26,7 +26,7 @@
 uint32_t global_data;
 
 // References to external functions
-void backup_sp();
+void backup_uboot();
 void swi_handler();
 void irq_handler();
 void setup_irq_mode();
@@ -75,9 +75,9 @@ int kmain(int argc, char** argv, uint32_t table)
 	global_data = table;
     
     /*
-     * Backup the U-Boot stack pointer. (For easy exit)
+     * Backup the U-Boot stack pointer and export table.
      */
-    backup_sp();
+    backup_uboot();
     
     /*
      * Install handlers

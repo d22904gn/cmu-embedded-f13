@@ -5,11 +5,12 @@
 int main(int argc, char** argv)
 {
     sleep(1000);
+    printf("time is: %lu\n", time());
     
-    char buf[255];
-    sprintf(buf, "time is: %lu\n", time());
+    sleep(2000);
+    printf("new time is: %lu\n", time());
     
-    write(STDOUT_FILENO, buf, strlen(buf));
+    printf("Whee end of time!\n");
     
     return 0;
 }
