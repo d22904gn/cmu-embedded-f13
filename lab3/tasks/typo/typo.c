@@ -4,6 +4,11 @@
  * @brief Echos characters back with timing data.
  *
  * Links to libc.
+ * 
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    08 Nov 2013
  */
 
 #include <unistd.h>
