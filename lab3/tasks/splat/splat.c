@@ -30,6 +30,7 @@ int main(int argc, char** argv)
     
     while(1) {
         // Move cursor backward and write next char
+        printf("%lux",time());
         printf("\b%c",sym_arr[i]);
         i++;
         if (i >= sym_size) {
