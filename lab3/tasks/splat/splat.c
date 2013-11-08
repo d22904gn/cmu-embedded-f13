@@ -3,9 +3,10 @@
  * @brief Displays a spinning cursor.
  *
  * Links to libc.
- * @author Wee Long Kuan
- * @author Chin Yang Oh
- * @author Jennifer Lee
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    08 Nov 2013
  */
 #include <unistd.h>
 #include <stdio.h>
