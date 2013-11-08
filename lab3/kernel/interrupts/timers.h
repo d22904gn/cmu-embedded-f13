@@ -24,7 +24,7 @@ extern volatile uint32_t sleep_interrupts;
 
 // Convert a OSCR reading to milliseconds
 INLINE unsigned long get_ms(uint32_t counter_val) {
-    return (counter_val / OSTMR_FREQ) * 1000;
+    return counter_val / (OSTMR_FREQ / 1000);
 }
 
 // Convert milliseconds to num of OSCR ticks needed.

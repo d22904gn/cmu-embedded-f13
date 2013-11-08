@@ -19,6 +19,7 @@ FUNC(irq_handler)
     push    {r0, lr}
     
     @ XXX: Restore export table if you intend to use U-Boot exports!
+    @      Remember to save r8 before loading the export table back.
     
     @ Safe to re-enable interrupts here.
     @ XXX: For later labs
