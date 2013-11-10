@@ -1,7 +1,7 @@
 /**
  * @file    exit.S
  *
- * @brief   exit() syscall
+ * @brief   exit() "syscall"
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -14,29 +14,30 @@
     .file   "exit.S"
     
 FUNC(exit)
-    @ Save scratch registers
-    push    {r0, r1}
+    @ Disable IRQs and FIQs
+    @ exit() technically not a syscall so safe to clobber r1-r3
+    mrs     r1, cpsr
+    orr     r1, r1, #0xc0
+    msr     cpsr_c, r1
     
     @ Restore U-Boot SWI handler
-    ldr     r0, =uboot_swi_handler_addr @ Load SWI handler addr
-    ldr     r1, =uboot_swi_instr1
-    str     r1, [r0]                    @ Write back 1st instruction.
-    add     r0, r0, #4
-    ldr     r1, =uboot_swi_instr2
-    str     r1, [r0]                    @ Write back 2nd instruction.
+    ldr     r1, =uboot_swi_handler_addr @ Load SWI handler addr
+    ldr     r2, =uboot_swi_instr1
+    str     r2, [r1]                    @ Write back 1st instruction.
+    add     r1, r1, #4
+    ldr     r2, =uboot_swi_instr2
+    str     r2, [r1]                    @ Write back 2nd instruction.
     
     @ Restore U-Boot IRQ handler
-    ldr     r0, =uboot_irq_handler_addr
-    ldr     r1, =uboot_irq_instr1
-    str     r1, [r0]
-    add     r0, r0, #4
-    ldr     r1, =uboot_irq_instr2
-    str     r1, [r0]
-    
-    @ Restore scratch registers.
-    pop     {r0, r1}
+    ldr     r1, =uboot_irq_handler_addr
+    ldr     r2, =uboot_irq_instr1
+    str     r2, [r1]
+    add     r1, r1, #4
+    ldr     r2, =uboot_irq_instr2
+    str     r2, [r1]
     
     @ Cleanup the stack from main()
+    @ Safe to clobber r4 since we are restoring it.
     ldr     r4, =uboot_sp
     ldr     sp, [r4]
     ldmia   sp!, {r4, r5, r6, r7, sl, pc}
