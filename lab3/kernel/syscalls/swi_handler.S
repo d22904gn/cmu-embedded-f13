@@ -42,8 +42,9 @@ FUNC(swi_handler)
     msr     spsr, r2
 
     @ Restore old registers. Do not restore r0; it has the syscall return val.
-    add     sp, sp, #4          @ Bypass r0 in the stack.
+    add     sp, sp, #4      @ Bypass r0 in the stack.
     pop     {r1-r12, lr}
+    add     sp, sp, #4      @ Bypass space for spsr.
 
     @ Return to spsr state.
     movs    pc, lr
