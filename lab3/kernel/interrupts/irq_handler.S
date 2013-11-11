@@ -15,7 +15,7 @@
 
 FUNC(irq_handler)
     @ Save old registers and spsr.
-    sub     sp, sp, #4  
+    sub     sp, sp, #4
     push    {r0-r12, lr}
     mrs     r0, spsr
     str     r0, [sp, #56]
@@ -31,4 +31,4 @@ FUNC(irq_handler)
     add     sp, sp, #4      @ Bypass space for spsr.
 
     @ Return to spsr state.
-    movs    pc, lr
+    subs    pc, lr, #4

@@ -12,6 +12,7 @@
 #include <types.h>
 #include <arm/reg.h>
 #include <arm/timer.h>
+#include "../interrupts/interrupts.h"
 #include "../interrupts/timers.h"
 
 // MATH!

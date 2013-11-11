@@ -12,6 +12,7 @@
 #include <types.h>
 #include <arm/reg.h>
 #include <arm/timer.h>
+#include "../interrupts/interrupts.h"
 #include "../interrupts/timers.h"
 
 // Num milliseconds for each overflow
@@ -33,8 +34,7 @@ void sleep(unsigned long millis) {
     while (sleep_interrupts < overflows_needed);
     
     // Step 3
-    reg_write(OSTMR_OSMR_ADDR(0),
-              reg_read(OSTMR_OSCR_ADDR) + remainder);
+    reg_write(OSTMR_OSMR_ADDR(0), reg_read(OSTMR_OSCR_ADDR) + remainder);
     while (sleep_interrupts == overflows_needed);
     
     // Reset sleep_interrupts, since we are done.

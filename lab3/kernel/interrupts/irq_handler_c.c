@@ -9,6 +9,7 @@
  * @date    03 Nov 2013
  */
 
+#include <inline.h>
 #include <arm/reg.h>
 #include <arm/interrupt.h>
 
@@ -16,9 +17,9 @@
 #define SLEEP_TIMER (1 << INT_OSTMR_0)
 #define TIME_TIMER  (1 << INT_OSTMR_1)
 
-// Timer interrupt handlers.
-void handle_sleep();
+// Device handlers
 void handle_time();
+void handle_sleep();
 
 void irq_handler_c() {
     // Check if timer generated the interrupt

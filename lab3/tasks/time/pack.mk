@@ -1,6 +1,0 @@
-PROGS_TIME_OBJS := time.o
-PROGS_TIME_OBJS := $(PROGS_TIME_OBJS:%=$(TDIR)/time/%)
-ALL_OBJS += $(PROGS_TIME_OBJS)
-
-$(TDIR)/bin/time : $(TSTART) $(PROGS_TIME_OBJS) $(TLIBC)
-

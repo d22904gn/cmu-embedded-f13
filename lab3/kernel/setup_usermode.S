@@ -18,11 +18,11 @@
     .file   "setup_usermode.S"
 
 FUNC(setup_usermode)
-    @ Switch to user mode, with IRQs enabled.
+    @ Switch to user mode
     mrs     r2, cpsr
-    bic     r2, r2, #0xdf           @ Clear mode bits and IRQ bits
-    orr     r2, r2, #0x50           @ Change to user mode with IRQs
-    msr     cpsr_c, r2              @ Update CPSR
+    bic     r2, r2, #0x1f
+    orr     r2, r2, #0xd0
+    msr     cpsr_c, r2
 
     @ Setup a full descending user mode stack
     ldr     sp, =USR_STACK_START
@@ -48,6 +48,11 @@ stack_loop:
     
     @ Push argc onto the stack.
     push    {r0}
+    
+    @ Enable interrupts
+    mrs     r0, cpsr
+    bic     r0, r0, #0x80
+    msr     cpsr_c, r0
 
     @ Jump to a loaded user program.
     mov     lr, pc

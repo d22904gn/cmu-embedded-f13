@@ -14,12 +14,6 @@
     .file   "exit.S"
     
 FUNC(exit)
-    @ Disable IRQs and FIQs
-    @ exit() technically not a syscall so safe to clobber r1-r3
-    mrs     r1, cpsr
-    orr     r1, r1, #0xc0
-    msr     cpsr_c, r1
-    
     @ Restore U-Boot SWI handler
     ldr     r1, =uboot_swi_handler_addr @ Load SWI handler addr
     ldr     r2, =uboot_swi_instr1

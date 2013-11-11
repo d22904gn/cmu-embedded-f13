@@ -18,10 +18,14 @@ int main(int argc, char** argv)
     char symbols[] = {'|', '/', '-', '\\'};
     int i = 1;
     
-    printf("%c", '|');
+    putchar('|');
+    sleep(200);
     
-    for (;;i = (i + 1) % 4) {
-        printf("\b%c", symbols[i]);
+    while (1) {
+        putchar('\b');
+        putchar(symbols[i]);
+        
+        if (++i == 4) i = 0;
         sleep(200);
     }
     

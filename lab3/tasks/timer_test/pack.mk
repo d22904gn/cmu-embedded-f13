@@ -1,0 +1,6 @@
+PROGS_TIMER_TEST_OBJS := timer_test.o
+PROGS_TIMER_TEST_OBJS := $(PROGS_TIMER_TEST_OBJS:%=$(TDIR)/timer_test/%)
+ALL_OBJS += $(PROGS_TIMER_TEST_OBJS)
+
+$(TDIR)/bin/timer_test : $(TSTART) $(PROGS_TIMER_TEST_OBJS) $(TLIBC)
+

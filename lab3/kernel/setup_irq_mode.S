@@ -11,7 +11,7 @@
 
 #include <asm.h>
 
-#define IRQ_STACK_START 0xa3ffffff
+#define IRQ_STACK_START 0xa2000000
 
     .file   "setup_irq_mode.S"
 
