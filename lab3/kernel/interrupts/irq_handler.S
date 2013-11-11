@@ -14,27 +14,21 @@
     .file   "irq_handler.S"
 
 FUNC(irq_handler)
-    @ Save spsr and link register
+    @ Save old registers and spsr.
+    sub     sp, sp, #4  
+    push    {r0-r12, lr}
     mrs     r0, spsr
-    push    {r0, lr}
-    
-    @ XXX: Restore export table if you intend to use U-Boot exports!
-    @      Remember to save r8 before loading the export table back.
-    
-    @ Safe to re-enable interrupts here.
-    @ XXX: For later labs
+    str     r0, [sp, #56]
 
     @ Call our C IRQ handler
     mov     lr, pc
     ldr     pc, =irq_handler_c
     
-    @ Mask interrupts before cleaning up.
-    @ XXX: For later labs
-
-    @ Restore spsr and lr
-    pop     {r0}
+    @ Restore spsr and registers
+    ldr     r0, [sp, #56]
     msr     spsr, r0
-    pop     {lr}
+    pop     {r0-r12, lr}
+    add     sp, sp, #4      @ Bypass space for spsr.
 
     @ Return to spsr state.
     movs    pc, lr
