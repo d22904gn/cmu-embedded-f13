@@ -11,6 +11,7 @@
 #ifndef _REG_H_
 #define _REG_H_
 
+#include <types.h>
 #include <inline.h>
 
 #define PERIPHERAL_BASE       0x40000000
