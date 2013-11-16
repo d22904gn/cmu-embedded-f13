@@ -26,7 +26,7 @@ uint32_t global_data;
 
 // References to external functions
 void swi_handler();
-void irq_handler();
+void irq_wrapper();
 void enter_usermode(int argc, char** argv);
 
 // Generic handler hijacking function.
@@ -77,7 +77,7 @@ int kmain(int argc __attribute__((unused)), char** argv  __attribute__((unused))
     
     // IRQ
     hijack_result = hijack_handler(IRQ_VEC_ADDR,
-                                   (uint32_t) (&irq_handler));
+                                   (uint32_t) (&irq_wrapper));
     if (hijack_result != 0) return hijack_result;
 
     /*

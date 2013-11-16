@@ -10,6 +10,7 @@
  */
 
 #include <asm.h>
+#include <arm/psr.h>
 
     .file   "swi_handler.S"
 
@@ -25,10 +26,10 @@ FUNC(swi_handler)
     ldr     r1, =global_data
     ldr     r8, [r1]
     
-    @ Enable interrupts.
-    mrs     r1, cpsr
-    bic     r1, r1, #0x80
-    msr     cpsr_c, r1
+    @ Enable IRQs.
+    @mrs     r1, cpsr
+    @bic     r1, r1, #PSR_IRQ
+    msr     cpsr_c, #(PSR_MODE_SVC & ~PSR_IRQ)
 
     @ Call our C SWI handler
     ldr     r0, [lr, #-4]       @ Pass in swi number

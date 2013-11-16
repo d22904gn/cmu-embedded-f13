@@ -1,5 +1,5 @@
 /**
- * @file    irq_handler_c.c
+ * @file    irq_handler.c
  *
  * @brief   Custom interrupt handler in C
  *
@@ -21,7 +21,7 @@
 void handle_time();
 void handle_sleep();
 
-void irq_handler_c() {
+void irq_handler() {
     // Check if timer generated the interrupt
     int int_source = reg_read(INT_ICMR_ADDR) & reg_read(INT_ICPR_ADDR);
     if (!(int_source & (SLEEP_TIMER | TIME_TIMER))) return;
