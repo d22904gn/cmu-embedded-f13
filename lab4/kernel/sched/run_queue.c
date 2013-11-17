@@ -52,9 +52,17 @@ static uint8_t prio_unmap_table[] = {
  * @brief Clears the run-queues and sets them all to empty.
  */
 void runqueue_init(void) {
-    run_bits = {0};
+    int i;
+    
+    for (i = 0; i < OS_MAX_TASKS / 8; i++) {
+        run_bits[i] = 0;
+    }
+    
     group_run_bits = 0;
-    run_list = {0};
+    
+    for (i = 0; i < OS_MAX_TASKS; i++) {
+        run_list[i] = 0;
+    }
 }
 
 /**
@@ -91,7 +99,7 @@ tcb_t* runqueue_remove(uint8_t prio) {
 	if (prio > OS_MAX_TASKS - 1 || !run_list[prio]) return 0;
     
     // If we are removing the idle task, don't actually remove it.
-    if (prio == IDLE_PRIO) return run_list[IDLE_PRIO]
+    if (prio == IDLE_PRIO) return run_list[IDLE_PRIO];
     
     // Remove TCB from run list.
     tcb_t *temp = run_list[prio];
@@ -112,8 +120,8 @@ tcb_t* runqueue_remove(uint8_t prio) {
  */
 uint8_t highest_prio(void) {
     // See algorithm in lecture slides.
-    y = prio_unmap_table[group_run_bits];
-    x = prio_unmap_table[run_bits[y]];
+    uint8_t y = prio_unmap_table[group_run_bits];
+    uint8_t x = prio_unmap_table[run_bits[y]];
 	
     return (y << 3) + x;
 }
