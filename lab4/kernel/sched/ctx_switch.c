@@ -18,7 +18,7 @@
 #include <exports.h>
 #endif
 
-static __attribute__((unused)) tcb_t* cur_tcb; /* use this if needed */
+static tcb_t *cur_tcb; /* use this if needed */
 
 /**
  * @brief Initialize the current TCB and priority.
@@ -26,9 +26,8 @@ static __attribute__((unused)) tcb_t* cur_tcb; /* use this if needed */
  * Set the initialization thread's priority to IDLE so that anything
  * will preempt it when dispatching the first task.
  */
-void dispatch_init(tcb_t* idle __attribute__((unused)))
-{
-	
+void dispatch_init(tcb_t* idle) {
+	cur_tcb = idle;
 }
 
 
@@ -40,9 +39,18 @@ void dispatch_init(tcb_t* idle __attribute__((unused)))
  * We could be switching from the idle task.  The priority searcher has been tuned
  * to return IDLE_PRIO for a completely empty run_queue case.
  */
-void dispatch_save(void)
-{
-	
+void dispatch_save(void) {
+	tcb_t *next_tcb = runqueue_remove(highest_prio));
+    tcb_t *old_tcb = cur_tcb;
+    
+    // Mark current task as runnable.
+    runqueue_add(cur_tcb, cur_tcb->cur_prio);
+    
+    // Update current TCB.
+    cur_tcb = next_tcb;
+    
+    // Context switch via ASM.
+    ctx_switch_full(next_tcb->context, old_tcb->context);
 }
 
 /**
@@ -51,9 +59,17 @@ void dispatch_save(void)
  *
  * There is always an idle task to switch to.
  */
-void dispatch_nosave(void)
-{
-
+void dispatch_nosave(void) {
+    tcb_t *next_task = runqueue_remove(highest_prio));
+    
+    // Mark current task as runnable.
+    runqueue_add(cur_tcb, cur_tcb->cur_prio);
+    
+    // Update current TCB.
+    cur_tcb = next_tcb;
+    
+    // Context switch via ASM.
+    ctx_switch_half(next_tcb->context);
 }
 
 
@@ -63,23 +79,26 @@ void dispatch_nosave(void)
  *
  * There is always an idle task to switch to.
  */
-void dispatch_sleep(void)
-{
-	
+void dispatch_sleep(void) {
+    tcb_t *next_task = runqueue_remove(highest_prio));
+    
+    // Update current TCB.
+    cur_tcb = next_tcb;
+    
+    // Context switch via ASM.
+    ctx_switch_half(next_tcb->context);
 }
 
 /**
  * @brief Returns the priority value of the current task.
  */
-uint8_t get_cur_prio(void)
-{
-	return 1; //fix this; dummy return to prevent compiler warning
+uint8_t get_cur_prio(void) {
+    return cur_tcb->cur_prio;
 }
 
 /**
  * @brief Returns the TCB of the current task.
  */
-tcb_t* get_cur_tcb(void)
-{
-	return (tcb_t *) 0; //fix this; dummy return to prevent compiler warning
+tcb_t* get_cur_tcb(void) {
+	return cur_tcb;
 }

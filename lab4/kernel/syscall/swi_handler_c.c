@@ -28,6 +28,6 @@ void swi_handler_c(uint32_t swi_num, int *r) {
         sleep_syscall((unsigned long) r[0]);
         break;
     default:
-        printf("Illegal SWI number: %x\n", swi_num);
+        invalid_syscall(swi_num);
     }
 }
