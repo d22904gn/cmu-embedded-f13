@@ -33,8 +33,8 @@ void setup_irq_mode();
 void setup_usermode(int argc, char** argv);
 
 // Generic handler hijacking function.
-int hijack_handler(uint32_t vec_addr, uint32_t *handler_addr,
-                   uint32_t handler_instr1, uint32_t handler_instr2,
+int hijack_handler(uint32_t vec_addr, uint32_t *handler_addr_storage,
+                   uint32_t *instr1_storage, uint32_t *instr2_storage,
                    uint32_t new_handler) {
     int sign, vec_imm;
     uint32_t vec_contents, vector_instr;
@@ -53,12 +53,13 @@ int hijack_handler(uint32_t vec_addr, uint32_t *handler_addr,
     // Extract the LDR immediate and save handler addr.
     sign = (vector_instr == LDR_OPCODE_UP) ? 1 : -1;
     vec_imm = (vec_contents & LDR_IMM_MASK) * sign;
-    handler_addr =
+    uint32_t *handler_addr =
         *((uint32_t**) (vec_addr + PREFETCH_OFFSET + vec_imm));
+    *handler_addr_storage = (uint32_t) handler_addr; // Update global.
 
     // Save U-Boot handler into global var.
-    handler_instr1 = *handler_addr;
-    handler_instr2 = *(handler_addr + 1);
+    *instr1_storage = *handler_addr;
+    *instr2_storage = *(handler_addr + 1);
     
     // Install our new handler.
     *handler_addr = LDR_OPCODE_DOWN | 0x04u;
@@ -83,14 +84,16 @@ int kmain(int argc, char** argv, uint32_t table)
      * Install handlers
      */
     // SWI
-    hijack_result = hijack_handler(SWI_VEC_ADDR, uboot_swi_handler_addr,
-                                   uboot_swi_instr1, uboot_swi_instr2,
+    hijack_result = hijack_handler(SWI_VEC_ADDR,
+                                   &uboot_swi_handler_addr,
+                                   &uboot_swi_instr1, &uboot_swi_instr2,
                                    (uint32_t) (&swi_handler));
     if (hijack_result != 0) return hijack_result;
     
     // IRQ
-    hijack_result = hijack_handler(IRQ_VEC_ADDR, uboot_irq_handler_addr,
-                                   uboot_irq_instr1, uboot_irq_instr2,
+    hijack_result = hijack_handler(IRQ_VEC_ADDR,
+                                   &uboot_irq_handler_addr,
+                                   &uboot_irq_instr1, &uboot_irq_instr2,
                                    (uint32_t) (&irq_handler));
     if (hijack_result != 0) return hijack_result;
     

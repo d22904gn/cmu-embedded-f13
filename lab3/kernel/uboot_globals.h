@@ -24,7 +24,7 @@ extern uint32_t uboot_exports;
  * SWI Stuff
  */
 // Stores address of the U-Boot SWI handler
-extern uint32_t *uboot_swi_handler_addr;
+extern uint32_t uboot_swi_handler_addr;
 
 // Stores old U-Boot SWI handler instructions.
 extern uint32_t uboot_swi_instr1;
@@ -34,7 +34,7 @@ extern uint32_t uboot_swi_instr2;
  * IRQ Stuff
  */
 // Stores address of the U-Boot IRQ handler
-extern uint32_t *uboot_irq_handler_addr;
+extern uint32_t uboot_irq_handler_addr;
 
 // Stores old U-Boot IRQ handler instructions.
 extern uint32_t uboot_irq_instr1;

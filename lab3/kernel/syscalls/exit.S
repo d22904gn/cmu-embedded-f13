@@ -34,4 +34,4 @@ FUNC(exit)
     @ Safe to clobber r4 since we are restoring it.
     ldr     r4, =uboot_sp
     ldr     sp, [r4]
-    ldmia   sp!, {r4, r5, r6, r7, sl, pc}
+    ldmia   sp!, {r4, r5, r6, r7, r9, sl, pc}
