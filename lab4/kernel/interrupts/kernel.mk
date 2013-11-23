@@ -1,4 +1,4 @@
-INTERRUPT_OBJS := irq_handler.o timers.o
-INTERRUPT_OBJS := $(INTERRUPT_OBJS:%=$(KDIR)/interrupts/%)
+INTERRUPTS_OBJS := irq_handler.o irq_handler_c.o timers.o
+INTERRUPTS_OBJS := $(INTERRUPTS_OBJS:%=$(KDIR)/interrupts/%)
 
-KOBJS += $(INTERRUPT_OBJS)
+KOBJS += $(INTERRUPTS_OBJS)

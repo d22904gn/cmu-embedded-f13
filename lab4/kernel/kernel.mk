@@ -2,15 +2,13 @@ KERNEL = $(KDIR)/kernel
 KSTART = $(KDIR)/start.o
 
 # All core kernel objects go here.  Add objects here if you need to.
-KOBJS := assert.o math.o memcheck.o raise.o ctype.o hexdump.o device.o \
-	     enter_usermode.o main.o
+KOBJS := assert.o raise.o enter_usermode.o main.o
 KOBJS := $(KOBJS:%=$(KDIR)/%)
 
 -include $(KDIR)/arm/kernel.mk
--include $(KDIR)/syscall/kernel.mk
+-include $(KDIR)/syscalls/kernel.mk
 -include $(KDIR)/interrupts/kernel.mk
--include $(KDIR)/sched/kernel.mk
--include $(KDIR)/lock/kernel.mk
+-include $(KDIR)/scheduler/kernel.mk
 
 ALL_OBJS += $(KOBJS) $(KSTART)
 ALL_CLOBBERS += $(KERNEL) $(KERNEL).bin
@@ -20,7 +18,7 @@ ALL_CLOBBERS += $(KERNEL) $(KERNEL).bin
 # AOBJS contains objects that are ARM dependent.
 # UOBJS contains objects that are U-boot dependent.
 
-$(KERNEL): $(KSTART) $(KOBJS) $(UOBJS)
+$(KERNEL): $(KSTART) $(KOBJS) $(AOBJS) $(UOBJS)
 	@echo LD $(notdir $@)
 	@$(LD) -static $(LDFLAGS) -o $@ $^ $(LIBGCC)
 

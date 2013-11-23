@@ -9,10 +9,6 @@
  * @date   2006-05-21
  * @date   2008-10-29 (added limits)
  * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
- *
- * @date   2006-05-21
- * @date   2008-10-29 (added limits)
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
  */
 
 #ifndef _BITS_TYPES_H_
@@ -22,12 +18,6 @@
 #ifndef ASSEMBLER
 
 #define offsetof(type, member)  ((size_t)(&(((type *)0)->member)))
-
-typedef enum bool_e
-{
-	FALSE = 0,
-	TRUE
-} bool_e;
 
 typedef unsigned long       size_t;
 typedef long                ssize_t;

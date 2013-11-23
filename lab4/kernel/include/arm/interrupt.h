@@ -49,19 +49,30 @@
 #define INT_RTC_HZ      30    /* RTC HZ Clock Tick Interrupt */
 #define INT_RTC_MATCH   31    /* RTC Alarm Match Register Interrupt */
 
-#define INT_RESERVED_MASK  0x0000807f  /* Reserved bits that must be ignored */
-
 #define NUM_INTERRUPTS  32
 
 #ifndef ASSEMBLER
 
-void interrupt_panic(unsigned int int_num) __attribute__((noreturn));
-void init_interrupt(void);
-void destroy_interrupt(void);
-void irq_handler(void);
-void request_reschedule(void);
-void install_int_handler(unsigned int int_num, void (*int_handler)(unsigned int))
-	__attribute__((nonnull));
+// Code from lab4 support code.
+#include <types.h>
+#include <inline.h>
+#include <arm/psr.h>
+
+INLINE void enable_interrupts(void)
+{
+	uint32_t cpsr;
+	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
+	cpsr &= ~(PSR_IRQ | PSR_FIQ);
+	asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
+}
+
+INLINE void disable_interrupts(void)
+{
+	uint32_t cpsr;
+	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
+	cpsr |= PSR_IRQ | PSR_FIQ;
+	asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
+}
 
 #endif /* ASSEMBLER */
 

@@ -31,8 +31,5 @@
 #define FUNC(x)      .text ; ALIGN ; FUNCSYM(x) ; GLOBAL(x)
 #define	DATA(x,s)    .data ; ALIGN ; DATASYM(x) ; SIZE(x,s) ; GLOBAL(x)
 
-#define BSS_WORD32(x)    .comm x, 4, 4
-
-#define CRASH(x, r)  ldr r, =x; ldr r, [r];
 
 #endif /* _ASM_H_ */

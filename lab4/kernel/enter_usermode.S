@@ -6,21 +6,21 @@
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
- * @date    14 Nov 2013
+ * @date    02 Nov 2013
  */
 
+#include <config.h>
 #include <asm.h>
 #include <arm/psr.h>
-#include <config.h>
 
     .file   "enter_usermode.S"
 
 FUNC(enter_usermode)
-    @ Switch to user mode with IRQs and FIQs disabled.
+    @ Switch to user mode. (IRQs and FIQs disabled)
     msr     cpsr_c, #(PSR_MODE_USR | PSR_IRQ | PSR_FIQ)
 
     @ Setup a full descending user mode stack
-    ldr     sp, =USR_STACK
+    ldr     sp, =USR_STACK_START
 
     @ Push U-Boot's argc & argv array on the user stack.
     @ Registers r0 and r1 contain the arguments to this function, which are
@@ -43,7 +43,10 @@ stack_loop:
     
     @ Push argc onto the stack.
     push    {r0}
+    
+    @ Enable interrupts
+    msr     cpsr_c, #(PSR_MODE_USR | PSR_FIQ)
 
     @ Jump to a loaded user program.
     mov     lr, pc
-    ldr     pc, =USR_START_ADDR
+    ldr     pc, =USR_PROG_ENTRY

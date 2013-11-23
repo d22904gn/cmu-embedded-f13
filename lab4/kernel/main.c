@@ -1,14 +1,14 @@
-/** @file main.c
+/**
+ * @file    main.c
  *
- * @brief kernel main
+ * @brief   Kernel kmain (entry) function
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
- * @date    14 Nov 2013
+ * @date    03 Nov 2013
  */
- 
-#include <assert.h>
+
 #include <types.h>
 #include <exports.h>
 #include <arm/reg.h>
@@ -22,15 +22,16 @@
 #define LDR_OPCODE_DOWN 0xe51ff000u
 #define LDR_IMM_MASK    0x00000fffu
 
-uint32_t global_data;
+// Global for uboot export table.
+uint32_t uboot_exports;
 
 // References to external functions
 void swi_handler();
-void irq_wrapper();
+void irq_handler();
 void enter_usermode(int argc, char** argv);
 
 // Generic handler hijacking function.
-int hijack_handler(uint32_t vec_addr, uint32_t new_handler) {
+int hijack_handler(uint32_t vec_addr, void (*new_handler)()) {
     int sign, vec_imm;
     uint32_t vec_contents, vector_instr;
     uint32_t *handler_addr;
@@ -46,7 +47,7 @@ int hijack_handler(uint32_t vec_addr, uint32_t new_handler) {
         return 0x0badc0de;
     }
 
-    // Extract the LDR immediate and save handler addr.
+    // Extract the LDR immediate.
     sign = (vector_instr == LDR_OPCODE_UP) ? 1 : -1;
     vec_imm = (vec_contents & LDR_IMM_MASK) * sign;
     handler_addr =
@@ -54,32 +55,31 @@ int hijack_handler(uint32_t vec_addr, uint32_t new_handler) {
     
     // Install our new handler.
     *handler_addr = LDR_OPCODE_DOWN | 0x04u;
-    *(handler_addr + 1) = new_handler;
+    *(handler_addr + 1) = (uint32_t) new_handler;
     
     return 0;
 }
 
-int kmain(int argc __attribute__((unused)), char** argv  __attribute__((unused)), uint32_t table)
+int kmain(int argc, char** argv, uint32_t _uboot_exports)
 {
-
-	app_startup();
-	global_data = table;
+    int hijack_result;
+    
+	app_startup(); /* bss is valid after this point */
 	
+    // Save U-Boot export table.
+    uboot_exports = _uboot_exports;
+    
     /*
      * Install handlers
      */
-    int hijack_result;
-    
     // SWI
-    hijack_result = hijack_handler(SWI_VEC_ADDR, 
-                                   (uint32_t) (&swi_handler));
+    hijack_result = hijack_handler(SWI_VEC_ADDR, swi_handler);
     if (hijack_result != 0) return hijack_result;
     
     // IRQ
-    hijack_result = hijack_handler(IRQ_VEC_ADDR,
-                                   (uint32_t) (&irq_wrapper));
+    hijack_result = hijack_handler(IRQ_VEC_ADDR, irq_handler);
     if (hijack_result != 0) return hijack_result;
-
+    
     /*
      * Setup timing stuff
      */
@@ -97,13 +97,11 @@ int kmain(int argc __attribute__((unused)), char** argv  __attribute__((unused))
     reg_write(OSTMR_OSMR_ADDR(0), 0);
     reg_write(OSTMR_OSMR_ADDR(1), 0);
     reg_write(OSTMR_OIER_ADDR, OSTMR_OIER_E0 | OSTMR_OIER_E1);
-
+    
     /*
-     * Enter usermode.
+     * Enter usermode
      */
     enter_usermode(argc, argv);
-    
-	assert(0);        /* should never get here */
-    
-    return 0;
+
+    return 0; // To satisfy GCC
 }

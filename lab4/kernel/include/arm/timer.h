@@ -37,4 +37,25 @@
 //#define OSTMR_FREQ            3686400      /* Oscillator frequency in hz */
 #define OSTMR_FREQ            3250000      /* Oscillator frequency in hz */
 
+/* Milliseconds per overflow */
+#define MS_PER_OVERFLOW       ((UINT_MAX / OSTMR_FREQ) * 1000u)
+
+#ifndef ASSEMBLER
+
+#include <types.h>
+#include <inline.h>
+
+// Convert a OSCR reading to milliseconds
+INLINE unsigned long get_ms(uint32_t counter_val) {
+    return counter_val / (OSTMR_FREQ / 1000);
+}
+
+// Convert milliseconds to num of OSCR ticks needed.
+// Assumes millis <= <counter size> / <clock freq>
+INLINE uint32_t get_ticks(uint32_t millis) {
+    return (OSTMR_FREQ / 1000) * millis;
+}
+
+#endif /* ASSEMBLER */
+
 #endif /* _TIMER_H_ */

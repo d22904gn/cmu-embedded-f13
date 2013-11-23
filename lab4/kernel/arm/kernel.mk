@@ -1,4 +1,4 @@
-ARM_OBJS := reg.o psr.o int_asm.o 
-ARM_OBJS := $(ARM_OBJS:%=$(KDIR)/arm/%)
+AOBJS := reg.o psr.o
+AOBJS := $(AOBJS:%=$(KDIR)/arm/%)
+ALL_OBJS += $(AOBJS)
 
-KOBJS += $(ARM_OBJS)

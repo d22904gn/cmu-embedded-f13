@@ -9,7 +9,6 @@
  * @date    03 Nov 2013
  */
 
-#include <types.h>
 #include <arm/timer.h>
 #include <arm/reg.h>
 
