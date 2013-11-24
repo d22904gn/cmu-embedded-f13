@@ -1,14 +1,21 @@
-/** @file sleep.S
+/**
+ * @file    sleep.S
  *
- * @brief sleep sycall wrapper
+ * @brief   sleep sycall wrapper
  *
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
- * @date 2008-10-31
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    02 Nov 2013
  */
 
 #include <asm.h>
+#include <bits/swi.h>
 
 	.file "sleep.S"
 
 FUNC(sleep)
-	@ Add code here.  Put your names at the top.
+	swi     SLEEP_SWI
+    
+    @ Return to caller
+    mov     pc, lr
