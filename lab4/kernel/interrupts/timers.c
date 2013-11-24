@@ -11,6 +11,8 @@
 
 #include <arm/timer.h>
 #include <arm/reg.h>
+#include "../syscalls/syscalls.h"
+#include "../scheduler/devices.h"
 
 /*
  * Globals
@@ -40,4 +42,18 @@ void handle_time() {
     
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M1);
+}
+
+void handle_devices() {
+    // Piggyback on our time syscall.
+    unsigned long curr_time = time();
+    
+    // Wake devices.
+    dev_update(curr_time);
+    
+    // Update our device match register.
+    reg_write(OSTMR_OSSR_M2, get_ticks(curr_time + DEV_INT_PERIOD));
+    
+    // Signal interrupt handled.
+    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);
 }

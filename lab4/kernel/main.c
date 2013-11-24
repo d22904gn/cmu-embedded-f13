@@ -14,6 +14,8 @@
 #include <arm/reg.h>
 #include <arm/interrupt.h>
 #include <arm/timer.h>
+#include "scheduler/devices.h"
+#include "scheduler/mutex.h"
 
 #define PREFETCH_OFFSET 8
 #define SWI_VEC_ADDR    0x8u
@@ -81,6 +83,12 @@ int kmain(int argc, char** argv, uint32_t _uboot_exports)
     if (hijack_result != 0) return hijack_result;
     
     /*
+     * Setup scheduler
+     */
+    dev_init();
+    mutex_init();
+    
+    /*
      * Setup timing stuff
      */
     // Reset timer (I.e. turn it on)
@@ -89,14 +97,19 @@ int kmain(int argc, char** argv, uint32_t _uboot_exports)
     // Mask all interrupts except for timer interrupts
     reg_write(INT_ICMR_ADDR, 1 << INT_OSTMR_0);
     reg_set(INT_ICMR_ADDR, 1 << INT_OSTMR_1);
+    reg_set(INT_ICMR_ADDR, 1 << INT_OSTMR_2);
     reg_write(INT_ICLR_ADDR, 0);
     
     // Init match registers.
     // OSTMR0 -> sleep()
     // OSTMR1 -> time()
+    // OSTMR2 -> devices
     reg_write(OSTMR_OSMR_ADDR(0), 0);
     reg_write(OSTMR_OSMR_ADDR(1), 0);
-    reg_write(OSTMR_OIER_ADDR, OSTMR_OIER_E0 | OSTMR_OIER_E1);
+    // 50 -> Lowest device period
+    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(50));
+    reg_write(OSTMR_OIER_ADDR,
+              OSTMR_OIER_E0 | OSTMR_OIER_E1 | OSTMR_OIER_E2);
     
     /*
      * Enter usermode

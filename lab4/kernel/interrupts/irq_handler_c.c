@@ -13,24 +13,27 @@
 #include <arm/interrupt.h>
 
 // Defines masks to check which interrupt was asserted.
-#define SLEEP_TIMER (1 << INT_OSTMR_0)
-#define TIME_TIMER  (1 << INT_OSTMR_1)
+#define SLEEP_TIMER     (1 << INT_OSTMR_0)
+#define TIME_TIMER      (1 << INT_OSTMR_1)
+#define DEVICES_TIMER    (1 << INT_OSTMR_2)
 
 // Device handlers
 void handle_time();
 void handle_sleep();
+void handle_devices();
 
 void irq_handler_c() {
     // Check if timer generated the interrupt
     int int_source = reg_read(INT_ICMR_ADDR) & reg_read(INT_ICPR_ADDR);
-    if (!(int_source & (SLEEP_TIMER | TIME_TIMER))) return;
+    if (!(int_source & 
+          (SLEEP_TIMER | TIME_TIMER | DEVICES_TIMER))) return;
     
-    /*
-     * Unlikely that both will occur at the same time.
-     */
-    // Check for time() interrupt.
+    // Process time() interrupt.
     if (int_source & TIME_TIMER) handle_time();
     
-    // Check for sleep() interrupt.
+    // Process sleep() interrupt.
     if (int_source & SLEEP_TIMER) handle_sleep();
+    
+    // Process device interrupt.
+    if (int_source & DEVICES_TIMER) handle_devices();
 }

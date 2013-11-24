@@ -1,7 +1,7 @@
 /**
  * @file    timing.c
  *
- * @brief   Timing related system call.
+ * @brief   Timing related system calls.
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>

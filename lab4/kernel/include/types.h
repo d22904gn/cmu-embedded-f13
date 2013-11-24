@@ -19,6 +19,12 @@
 
 #define offsetof(type, member)  ((size_t)(&(((type *)0)->member)))
 
+typedef enum bool
+{
+	FALSE = 0,
+	TRUE
+} bool;
+
 typedef unsigned long       size_t;
 typedef long                ssize_t;
 

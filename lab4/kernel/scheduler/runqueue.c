@@ -1,9 +1,10 @@
-/** @file run_queue.c
+/** 
+ * @file    runqueue.c
  * 
- * @brief Run queue maintainence routines.
+ * @brief   Run queue maintainence routines.
  *
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
- * @date 2008-11-21
+ * @author  Kartik Subramanian <ksubrama@andrew.cmu.edu>
+ * @date    2008-11-21
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>
@@ -53,7 +54,7 @@ static uint8_t prio_unmap_table[] = {
 /**
  * @brief Clears the run-queues and sets them all to empty.
  */
-void runqueue_init(void) {
+void runqueue_init() {
     int i;
     
     for (i = 0; i < OS_MAX_TASKS / 8; i++) {
