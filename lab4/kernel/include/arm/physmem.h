@@ -18,6 +18,22 @@
 
 #ifndef ASSEMBLER
 
+#include <types.h>
+#include <config.h>
+
+bool in_ram(void* addr) {
+    
+}
+
+bool in_writable_mem(void* addr) {
+}
+
+bool in_readable_mem(void* addr) {
+}
+
+bool in_userspace(void* addr) {
+}
+
 #endif /* ASSEMBLER */
 
 #endif /* _PHYSMEM_H_ */
