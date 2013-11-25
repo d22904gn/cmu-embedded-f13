@@ -5,8 +5,8 @@
  * Date:   Sun, 14 Oct 2007 00:12:03 -0400
  */
 
-#ifndef STDARG_H
-#define STDARG_H
+#ifndef _STDARG_H_
+#define _STDARG_H_
 
 #define va_start(ap, last) __builtin_va_start(ap, last)
 #define va_arg(ap, type)   __builtin_va_arg(ap, type)
@@ -15,4 +15,4 @@
 
 typedef __builtin_va_list va_list;
 
-#endif /* STDARG_H */
+#endif /* _STDARG_H_ */

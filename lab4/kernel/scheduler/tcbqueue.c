@@ -34,8 +34,8 @@ void tcbqueue_enqueue(tcb_queue_t *queue, tcb_t *item) {
     // Sanity check
     if (tcbqueue_full(queue)) return;
     
-    queue->queue[fast_modulo(queue->tail, MAX_TCBQ_SIZE)] = item;
-    queue->tail++;
+    queue->queue[queue->tail] = item;
+    queue->tail = fast_modulo(queue->tail + 1, MAX_TCBQ_SIZE);
     queue->size++;
 }
 

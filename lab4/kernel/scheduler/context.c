@@ -21,9 +21,8 @@ tcb_t *curr_tcb = 0;
 
 // ASM routines
 void ctx_switch_full(sched_context_t *next_ctx,
-                     sched_context_t *cur_ctx,
-                     bool launch_task);
-void ctx_switch_half(sched_context_t *next_ctx, bool launch_task);
+                     sched_context_t *cur_ctx);
+void ctx_switch_half(sched_context_t *next_ctx);
 
 /**
  * @brief Context switch to the highest priority task that is not the 
@@ -44,9 +43,7 @@ void dispatch_save() {
     curr_tcb = next_tcb;
     
     // Context switch via ASM.
-    bool launch_task = (next_tcb->curr_prio == SLEEP_PRIO);
-    ctx_switch_full(&(next_tcb->context), &(old_tcb->context),
-                    launch_task);
+    ctx_switch_full(&(next_tcb->context), &(old_tcb->context));
 }
 
 /**
@@ -66,9 +63,8 @@ void dispatch_nosave() {
     // Update current TCB.
     curr_tcb = next_tcb;
     
-    // Context switch via ASM.
-    bool launch_task = (next_tcb->curr_prio == SLEEP_PRIO);
-    ctx_switch_half(&(next_tcb->context), launch_task);
+    // Context switch via ASM
+    ctx_switch_half(&(next_tcb->context));
 }
 
 
@@ -84,11 +80,11 @@ void dispatch_sleep() {
     if (curr_tcb->curr_prio == next_prio) return;
     
     tcb_t *next_tcb = runqueue_remove(next_prio);
+    tcb_t *old_tcb = curr_tcb;
     
     // Update current TCB.
     curr_tcb = next_tcb;
     
     // Context switch via ASM.
-    bool launch_task = (next_tcb->curr_prio == SLEEP_PRIO);
-    ctx_switch_half(&(next_tcb->context), launch_task);
+    ctx_switch_full(&(next_tcb->context), &(old_tcb->context));
 }

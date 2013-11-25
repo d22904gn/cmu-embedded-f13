@@ -1,7 +1,7 @@
 /* From linux-2.6.18/include/asm-generic/errno-base.h */
 
-#ifndef BITS_ERRNO_H
-#define BITS_ERRNO_H
+#ifndef _BITS_ERRNO_H_
+#define _BITS_ERRNO_H_
 
 #define EPERM          1    /* Operation not permitted */
 #define ENOENT         2    /* No such file or directory */
@@ -41,4 +41,4 @@
 
 #define ESCHED       100    /* Unable to schedule */
 
-#endif /* BITS_ERRNO_H */
+#endif /* _BITS_ERRNO_H_ */

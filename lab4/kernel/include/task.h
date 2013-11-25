@@ -1,9 +1,15 @@
-/** @file task.h
+/** 
+ * @file    task.h
  *
- * @brief Declares task maintainence structures.
+ * @brief   Declares task maintainence structures.
  *
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
- * @date   2008-11-19
+ * @author  Kartik Subramanian <ksubrama@andrew.cmu.edu>
+ * @date    2008-11-19
+ * 
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    20 Nov 2013
  */
 
 #ifndef _TASK_H_
@@ -28,7 +34,6 @@ struct task
 };
 typedef struct task task_t;
 
-
 /**
  * Register context for the scheduler.
  */
@@ -50,10 +55,10 @@ typedef volatile struct sched_context sched_context_t;
 
 struct tcb
 {
-	uint8_t         native_prio;        /**< The native priority of the task without escalation */
-	uint8_t         curr_prio;          /**< The current priority of the task after priority inheritance */
-	sched_context_t context;            /**< The task's serialized context -- if not running */
-	int             holds_lock;         /**< 1 if the task is currently owning a lock */
+	uint8_t         native_prio;        /** The native priority of the task without escalation */
+	uint8_t         curr_prio;          /** The current priority of the task after priority inheritance */
+	sched_context_t context;            /** The task's serialized context -- if not running */
+	bool            holds_lock;         /** TRUE if the task is currently owning a lock */
     volatile struct tcb* prio_src;      /** Task that this TCB inherits priority from **/
 	/** Embed the kernel stack here -- AAPCS wants 8 byte alignment */
 	uint32_t        kstack[OS_KSTACK_SIZE/sizeof(uint32_t)] 
@@ -62,4 +67,4 @@ struct tcb
 typedef volatile struct tcb tcb_t;
 
 
-#endif /* TASK_H */
+#endif /* _TASK_H_ */

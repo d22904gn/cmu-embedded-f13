@@ -23,4 +23,8 @@ void sleep(unsigned long millis);
 int task_create(task_t* tasks, size_t num_tasks);
 int event_wait(unsigned int dev);
 
+int mutex_create();
+int mutex_lock(int mutex_num);
+int mutex_unlock(int mutex_num);
+
 #endif

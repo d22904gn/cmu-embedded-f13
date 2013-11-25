@@ -14,7 +14,6 @@
 #ifndef _BITS_TYPES_H_
 #define _BITS_TYPES_H_
 
-
 #ifndef ASSEMBLER
 
 #define offsetof(type, member)  ((size_t)(&(((type *)0)->member)))

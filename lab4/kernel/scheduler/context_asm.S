@@ -40,31 +40,29 @@ FUNC(launch_task)
 	mov     r5, #0
 	mov     r8, #0
 	mov     ip, #0
-	msr     cpsr_c, #(PSR_MODE_USR)
+	msr     cpsr_c, #(PSR_MODE_USR | PSR_FIQ)
 	mov     sp, r6
 	mov     r6, #0
 	ldr     lr, =0xdeadbeef   /* Causes a crash instead of calling the reset vector */
 	mov     pc, r4
 
-/* r0 points to the target context, r1 to the current context.
-   r2 is 1 iff we need to call launch_task. */
+/* r0 points to the target context, r1 to the current context. */
 /* Note: Safe to clobber r0-r3 */
 FUNC(ctx_switch_full)
     @ Save current context
-    stmia   r0, {r4-r11, sp, lr}
-    
-    @ Call ctx_switch_half.
-    mov     r1, r2
+    stmia   r1, {r4-r11, sp, lr}
     b       ctx_switch_half
     
-/* r0 points to the target context. r1 is 1 iff we need to call
-   launch_task. */
+/* r0 points to the target context. */
 /* Note: Safe to clobber r0-r3 */
 FUNC(ctx_switch_half)
-    @ Check if we need to call launch_task (I.e. fresh task)
-    cmp     r1, #0
-    bne     launch_task
-    
-    @ If not a fresh task, switch in new context.
+    @ Load in target context.
     ldmia   r0, {r4-r11, sp, lr}
+
+    @ Check if we need to call launch_task (I.e. fresh task)
+    @ A task is new if lr == 0.
+    cmp     lr, #0
+    beq     launch_task
+    
+    @ If not a fresh task, go straight back to the task
     mov     pc, lr

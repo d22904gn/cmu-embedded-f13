@@ -30,6 +30,6 @@ typedef struct dev dev_t;
 #define DEV_INT_PERIOD 50
 
 void dev_init();
-void dev_enqueue(tcb_t *callee, unsigned int dev_num);
+void dev_enqueue(tcb_t *task_ptr, unsigned int dev_num);
 void dev_update(unsigned long num_millis);
 #endif /* DEVICE_H */

@@ -15,6 +15,9 @@
 #include <types.h>
 #include <task.h>
 
+// XXX:Debug
+#include <exports.h>
+
 static tcb_t* run_list[OS_MAX_TASKS];
 
 /* A high bit in this bitmap means that the task whose priority is
@@ -80,14 +83,16 @@ void runqueue_add(tcb_t* tcb, uint8_t prio) {
     // Sanity check
 	if (prio > OS_MAX_TASKS - 1 || run_list[prio]) return;
     
+    // printf("\n>>>Adding task with prio %u to runqueue.\n", prio);
+    
     // Add task to queue
     run_list[prio] = tcb;
     
     // Set appropriate bits in run_bits and group_run_bits
     uint8_t group = prio >> 3;
     uint8_t run_bit_offset = prio & 0x07;
-    run_bits[group] |= (1 << run_bit_offset);
     group_run_bits |= (1 << group);
+    run_bits[group] |= (1 << run_bit_offset);
 }
 
 /**
@@ -112,7 +117,7 @@ tcb_t* runqueue_remove(uint8_t prio) {
     uint8_t group = prio >> 3;
     uint8_t run_bit_offset = prio & 0x07;
     run_bits[group] &= ~(1 << run_bit_offset);
-    group_run_bits &= ~(1 << group);
+    if (run_bits[group] == 0) group_run_bits &= ~(1 << group);
     
 	return temp;
 }
@@ -125,6 +130,6 @@ uint8_t highest_prio(void) {
     // See algorithm in lecture slides.
     uint8_t y = prio_unmap_table[group_run_bits];
     uint8_t x = prio_unmap_table[run_bits[y]];
-	
+    
     return (y << 3) + x;
 }

@@ -22,4 +22,4 @@ typedef unsigned char uchar;
 #define CHAR_NEWLINE    10u
 #define CHAR_CR         13u
 
-#endif
+#endif /* _CHARS_H_ */

@@ -11,7 +11,9 @@
 
 #include <arm/timer.h>
 #include <arm/reg.h>
+#include <bits/swi.h>
 #include "../syscalls/syscalls.h"
+#include "../scheduler/scheduler.h"
 #include "../scheduler/devices.h"
 
 /*
@@ -45,14 +47,14 @@ void handle_time() {
 }
 
 void handle_devices() {
-    // Piggyback on our time syscall.
-    unsigned long curr_time = time();
+    // Devices are only valid if tasks are defined.
+    if (curr_tcb == (tcb_t*) 0) return;
     
     // Wake devices.
-    dev_update(curr_time);
+    dev_update(time());
     
     // Update our device match register.
-    reg_write(OSTMR_OSSR_M2, get_ticks(curr_time + DEV_INT_PERIOD));
+    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(time() + DEV_INT_PERIOD));
     
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);

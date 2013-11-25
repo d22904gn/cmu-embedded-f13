@@ -13,11 +13,8 @@
 #include <types.h>
 #include <task.h>
 
-// Priority level for sleeping/fresh tasks
-#define SLEEP_PRIO  UINT8_MAX
-
 // Globals
-extern tcb_t *curr_tcb;
+extern tcb_t *curr_tcb;         // Currently running task.
 
 // C Routines
 void allocate_tasks(task_t** tasks, uint32_t num_tasks);

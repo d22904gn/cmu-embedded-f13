@@ -20,7 +20,8 @@
 
 // Convenience macros
 #define GET_KSTACK_START(task_block) (\
-    sizeof(task_block) - sizeof(uint32_t) \
+    ((char*) (&task_block)) + \
+    (sizeof((task_block)) - sizeof(uint32_t)) \
 )
 
 tcb_t system_tcb[OS_MAX_TASKS]; /* allocate memory for system TCBs */
@@ -29,7 +30,7 @@ tcb_t system_tcb[OS_MAX_TASKS]; /* allocate memory for system TCBs */
  * @brief This is the idle task that the system runs when no other task is runnable
  */
 static void idle() {
-	 while(1);
+    while(1);
 }
 
 /**
@@ -59,8 +60,8 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
         
         // Setup prioities and locks
         system_tcb[i].native_prio = i;
-        system_tcb[i].curr_prio = SLEEP_PRIO;
-        system_tcb[i].holds_lock = 0;
+        system_tcb[i].curr_prio = i;
+        system_tcb[i].holds_lock = FALSE;
         system_tcb[i].prio_src = 0;
         
         // Setup task stack for launch_task
@@ -68,11 +69,13 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
         // r5 -> single argument to the user function called.
         // r6 -> user-mode stack pointer.
         // r7 -> kernel mode stack pointer
+        // lr -> 0 for a new task.
         system_tcb[i].context.r4 = (uint32_t) tasks[i]->lambda;
         system_tcb[i].context.r5 = (uint32_t) tasks[i]->data;
         system_tcb[i].context.r6 = (uint32_t) tasks[i]->stack_pos;
         system_tcb[i].context.r7 = 
             (uint32_t) GET_KSTACK_START(system_tcb[i]);
+        system_tcb[i].context.lr = 0;
         
         // Add to runqueue
         runqueue_add(&system_tcb[i], i);
@@ -81,7 +84,7 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     // Init idle TCB
     system_tcb[IDLE_PRIO].native_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].curr_prio = IDLE_PRIO;
-    system_tcb[IDLE_PRIO].holds_lock = 0;
+    system_tcb[IDLE_PRIO].holds_lock = FALSE;
     system_tcb[IDLE_PRIO].prio_src = 0;
     
     system_tcb[IDLE_PRIO].context.r4 = (uint32_t) idle;
@@ -89,6 +92,7 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     system_tcb[IDLE_PRIO].context.r6 = 0;
     system_tcb[IDLE_PRIO].context.r7 = 
             (uint32_t) GET_KSTACK_START(system_tcb[IDLE_PRIO]);
+    system_tcb[IDLE_PRIO].context.lr = 0;
     
     runqueue_add(&system_tcb[IDLE_PRIO], IDLE_PRIO);
     

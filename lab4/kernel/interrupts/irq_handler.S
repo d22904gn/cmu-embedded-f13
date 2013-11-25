@@ -37,8 +37,9 @@ FUNC(irq_handler)
 	mrs      r0, spsr       @ set r0 = cpsr_prev
 	mov      r1, lr         @ set r1 = lr_irq
 
-	/* Switch to supervisor mode */
-	msr      cpsr_c, #(PSR_MODE_SVC | PSR_IRQ)
+	/* Switch to supervisor mode with IRQs and FIQs disabled.
+       We don't want nested IRQs. */
+	msr      cpsr_c, #(PSR_MODE_SVC | PSR_IRQ | PSR_FIQ)
 
 	/* Diq the spsr_svc because svc-mode (SWI) entry code saves it with IRQ 
 	 * disabled.  I feel so dirty doing this.  
@@ -74,10 +75,10 @@ FUNC(irq_handler)
 	bl      irq_handler_c
 
 	/* Restore registers.  Also restore CPSR. */
-	ldmfd    sp, {r0, sp, lr}^              @ set r0 = cpsr_usr.
+	ldmfd    sp, {r0, sp, lr}^              @ set r0 = cpsr_prev.
                                             @ Restore sp_usr, lr_usr
 	add      sp, sp, #12
-	msr      spsr, r0                       @ set spsr_svc = cpsr_usr
+	msr      spsr, r0                       @ set spsr_svc = cpsr_prev
 	ldmfd    sp!, {r0-r3, r8, ip, lr, pc}^  @ Restore all registers.
                                             @ Note lr in reg list refers
                                             @ to lr_svc.
@@ -97,4 +98,3 @@ FUNC(irq_handler)
 GLOBAL(irq_stack_lo)
 	.space 8
 GLOBAL(irq_stack_hi)
-

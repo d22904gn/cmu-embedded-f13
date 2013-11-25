@@ -60,6 +60,7 @@ int mutex_lock(int mutex_num) {
     } else {
         mutexes[mutex_num].is_available = FALSE;
         mutexes[mutex_num].curr_owner = curr_tcb;
+        curr_tcb->holds_lock = TRUE;
     }
     
     return 0;
@@ -73,11 +74,16 @@ int mutex_unlock(int mutex_num) {
     if (mutexes[mutex_num].curr_owner->native_prio !=
         curr_tcb->native_prio) return -EPERM;
     
+    mutexes[mutex_num].curr_owner->holds_lock = FALSE;
+    mutexes[mutex_num].curr_owner = 0;
     mutexes[mutex_num].is_available = TRUE;
     
     // Check if we need to wake anything
     if (mutexes[mutex_num].sleep_queue.size != 0) {
-        //XXX TODO;
+        tcb_t* next_tcb = 
+            tcbqueue_dequeue(&(mutexes[mutex_num].sleep_queue));
+        runqueue_add(next_tcb, next_tcb->curr_prio);
+        dispatch_save();
     }
     
     return 0;

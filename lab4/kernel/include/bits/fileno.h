@@ -6,11 +6,11 @@
  * @date   Sun, 07 Oct 2007 01:34:56 -0400
  */
 
-#ifndef BITS_FILENO_H
-#define BITS_FILENO_H
+#ifndef _BITS_FILENO_H_
+#define _BITS_FILENO_H_
 
 #define STDIN_FILENO  0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
 
-#endif /* BITS_FILENO_H */
+#endif /* _BITS_FILENO_H_ */

@@ -9,8 +9,8 @@
  * @date 2008-10-31
  */
 
-#ifndef BITS_SWI_H
-#define BITS_SWI_H
+#ifndef _BITS_SWI_H_
+#define _BITS_SWI_H_
 
 #define SWI_BASE 0x900000
 
@@ -29,4 +29,11 @@
 
 #define EVENT_WAIT    (SWI_BASE + 20)
 
-#endif /* BITS_SWI_H */
+#ifndef ASSEMBLER
+
+// SWI Macro
+#define CALL_SWI(swi_num) asm volatile ("svc %0" : : "I" (swi_num) )
+
+#endif /* ASSEMBLER */
+
+#endif /* _BITS_SWI_H_ */

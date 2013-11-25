@@ -48,5 +48,7 @@ stack_loop:
     msr     cpsr_c, #(PSR_MODE_USR | PSR_FIQ)
 
     @ Jump to a loaded user program.
-    mov     lr, pc
     ldr     pc, =USR_PROG_ENTRY
+    
+    @ Control flow should not reach here, but we loop just in case...
+    sub     pc, pc, #8

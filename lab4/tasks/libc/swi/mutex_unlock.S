@@ -9,8 +9,8 @@
  * @date    23 Nov 2013
  */
 
-
 #include <asm.h>
+#include <bits/swi.h>
 
 	.file "mutex_unlock.S"
 

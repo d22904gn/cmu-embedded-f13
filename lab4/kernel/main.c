@@ -106,8 +106,8 @@ int kmain(int argc, char** argv, uint32_t _uboot_exports)
     // OSTMR2 -> devices
     reg_write(OSTMR_OSMR_ADDR(0), 0);
     reg_write(OSTMR_OSMR_ADDR(1), 0);
-    // 50 -> Lowest device period
-    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(50));
+    // DEV_INT_PERIOD -> Lowest device period
+    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(DEV_INT_PERIOD));
     reg_write(OSTMR_OIER_ADDR,
               OSTMR_OIER_E0 | OSTMR_OIER_E1 | OSTMR_OIER_E2);
     

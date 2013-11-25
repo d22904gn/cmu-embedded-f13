@@ -14,6 +14,9 @@
 #include "runqueue.h"
 #include "tcbqueue.h"
 
+// XXX:DEBUG
+#include <exports.h>
+
 /* devices will be periodically signaled at the following frequencies */
 const unsigned long dev_freq[NUM_DEVICES] = {100, 200, 500, 50};
 static dev_t devices[NUM_DEVICES];
@@ -33,12 +36,12 @@ void dev_init() {
 /**
  * @brief Adds a task to the device sleep queue.
  */
-void dev_enqueue(tcb_t *task, unsigned int dev_num) {
+void dev_enqueue(tcb_t *task_ptr, unsigned int dev_num) {
     // Sanity check
     if (dev_num >= NUM_DEVICES ||
         tcbqueue_full(&(devices[dev_num].sleep_queue))) return;
 
-    tcbqueue_enqueue(&(devices[dev_num].sleep_queue), task);
+    tcbqueue_enqueue(&(devices[dev_num].sleep_queue), task_ptr);
 }
 
 /**
@@ -66,9 +69,6 @@ void dev_update(unsigned long millis) {
         }
     }
     
-    // Switch into the new TCBs. No need to save since all tasks have
-    // been sleeping.
-    dispatch_nosave();
+    // Switch into the new TCBs if needed.
+    dispatch_save();
 }
-
-

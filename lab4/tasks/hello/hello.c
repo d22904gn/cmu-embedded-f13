@@ -11,7 +11,8 @@
 
 const char hello[] = "Hello World\r\n";
 
-int main(int argc, char** argv)
+int main(int argc __attribute((unused)),
+         char** argv __attribute((unused)))
 {
 	write(STDOUT_FILENO, hello, sizeof(hello) - 1);
 	return 0;

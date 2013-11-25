@@ -22,5 +22,5 @@ FUNC(_start)
     mov     lr, pc
     ldr     pc, =main
     
-    @ Call exit
-    ldr     pc, =exit
+    @ Infinite loop after main returns.
+    sub     pc, pc, #8;

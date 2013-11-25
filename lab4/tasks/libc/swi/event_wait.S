@@ -1,14 +1,28 @@
-/** @file event_wait.S
+/** 
+ * @file    event_wait.S
  *
- * @brief time sycall wrapper
+ * @brief   event_wait sycall wrapper
  *
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
- * @date 2008-10-31
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    23 Nov 2013
  */
 
 #include <asm.h>
+#include <bits/swi.h>
 
 	.file "event_wait.S"
 
 FUNC(event_wait)
-	@ Add code here.  Put your name at the top.
+    swi     EVENT_WAIT
+    cmp     r0, #0      @ Check for syscall error.
+    
+    @ Subsequent instructions execute only if syscall returned an error.
+    rsblt   r0, r0, #0      @ Make syscall return value positive
+    ldrlt   r1, =errno
+    strlt   r0, [r1]        @ Set errno = |return val|
+    mvnlt   r0, #0          @ Return -1
+    
+    @ Return to caller
+    mov     pc, lr
