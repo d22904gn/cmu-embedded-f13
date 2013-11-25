@@ -22,6 +22,6 @@
 #define OS_AVAIL_TASKS      63
 
 /* OS_NUM_MUTEX must be at least 32 */
-#define OS_NUM_MUTEX	    32
+#define OS_NUM_MUTEX        32
 
 #endif /* _CONFIG_H_ */

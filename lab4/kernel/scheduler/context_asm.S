@@ -31,18 +31,18 @@
  */
 
 FUNC(launch_task)
-	mov     r0, r5
-	mov     r1, #0
-	mov     r2, #0
-	mov     r3, #0
-	mov     r5, #0
-	mov     r8, #0
-	mov     ip, #0
-	msr     cpsr_c, #(PSR_MODE_USR | PSR_FIQ)
-	mov     sp, r6
-	mov     r6, #0
-	ldr     lr, =0xdeadbeef   /* Causes a crash instead of calling the reset vector */
-	mov     pc, r4
+    mov     r0, r5
+    mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
+    mov     r5, #0
+    mov     r8, #0
+    mov     ip, #0
+    msr     cpsr_c, #(PSR_MODE_USR | PSR_FIQ)
+    mov     sp, r6
+    mov     r6, #0
+    ldr     lr, =0xdeadbeef   /* Causes a crash instead of calling the reset vector */
+    mov     pc, r4
 
 /* r0 points to the target context, r1 to the current context. */
 /* Note: Safe to clobber r0-r3 */

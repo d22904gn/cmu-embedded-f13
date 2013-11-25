@@ -21,13 +21,14 @@ static dev_t devices[NUM_DEVICES];
 
 /**
  * @brief Initialize the sleep queues and match values for all devices.
+ * Note that next match is set relative to millis.
  */
-void dev_init() {
+void dev_init(unsigned long millis) {
     int i;
     
     for (i = 0; i < NUM_DEVICES; i++) {
         tcbqueue_init(&(devices[i].sleep_queue));
-        devices[i].next_match = dev_freq[i];
+        devices[i].next_match = millis + dev_freq[i];
     }
 }
 
@@ -61,7 +62,7 @@ void dev_update(unsigned long millis) {
      * 1. device TCB sleep queue
      * 2. runqueue
      */
-	uint32_t i;
+    uint32_t i;
     
     for (i = 0; i < NUM_DEVICES; i++) {
         if (devices[i].next_match <= millis) {

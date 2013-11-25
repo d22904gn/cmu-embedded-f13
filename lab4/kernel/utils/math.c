@@ -21,16 +21,15 @@
  * @param buf   The start of the buffer.
  * @param size  The number of integers in the region.
  */
-unsigned int sum_region(unsigned int* buf, size_t num_words)
-{
-	size_t i;
-	unsigned int result;
+unsigned int sum_region(unsigned int* buf, size_t num_words) {
+    size_t i;
+    unsigned int result;
 
-	result = 0;
-	for (i = 0; i != num_words; i++)
-		result += buf[i];
-	
-	return result;
+    result = 0;
+    for (i = 0; i != num_words; i++)
+        result += buf[i];
+    
+    return result;
 }
 
 
@@ -48,14 +47,13 @@ unsigned int sum_region(unsigned int* buf, size_t num_words)
  * @return  log2(x)
  * @param x The unsigned number to take the logarithm of.
  */
-unsigned int ilog2(unsigned int x)
-{
-	unsigned int r = 0;
+unsigned int ilog2(unsigned int x) {
+    unsigned int r = 0;
 
-	while (x >>= 1)
-		r++;
-	
-	return r;
+    while (x >>= 1)
+        r++;
+    
+    return r;
 }
 
 #else    /* NDEBUG */
@@ -78,23 +76,22 @@ unsigned int ilog2(unsigned int x)
  * @return  log2(x)
  * @param x The unsigned number to take the logarithm of.
  */
-unsigned int ilog2(unsigned int v)
-{
-	const unsigned int b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
-	const unsigned int S[] = {1, 2, 4, 8, 16};
-	int i;
+unsigned int ilog2(unsigned int v) {
+    const unsigned int b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
+    const unsigned int S[] = {1, 2, 4, 8, 16};
+    int i;
 
-	unsigned int r = 0;
-	for (i = sizeof(b)/sizeof(b[0]) - 1; i >= 0; i--)
-	{
-		if (v & b[i])
-		{
-			v >>= S[i];
-			r |= S[i];
-	   	} 
-  	}
+    unsigned int r = 0;
+    for (i = sizeof(b)/sizeof(b[0]) - 1; i >= 0; i--)
+    {
+        if (v & b[i])
+        {
+            v >>= S[i];
+            r |= S[i];
+        } 
+    }
 
-	return r;
+    return r;
 }
 
 #endif   /* NDEBUG */

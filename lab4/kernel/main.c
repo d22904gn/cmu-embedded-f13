@@ -14,8 +14,6 @@
 #include <arm/reg.h>
 #include <arm/interrupt.h>
 #include <arm/timer.h>
-#include "scheduler/devices.h"
-#include "scheduler/mutex.h"
 
 #define PREFETCH_OFFSET 8
 #define SWI_VEC_ADDR    0x8u
@@ -62,12 +60,11 @@ int hijack_handler(uint32_t vec_addr, void (*new_handler)()) {
     return 0;
 }
 
-int kmain(int argc, char** argv, uint32_t _uboot_exports)
-{
+int kmain(int argc, char** argv, uint32_t _uboot_exports) {
     int hijack_result;
     
-	app_startup(); /* bss is valid after this point */
-	
+    app_startup(); /* bss is valid after this point */
+    
     // Save U-Boot export table.
     uboot_exports = _uboot_exports;
     
@@ -81,12 +78,6 @@ int kmain(int argc, char** argv, uint32_t _uboot_exports)
     // IRQ
     hijack_result = hijack_handler(IRQ_VEC_ADDR, irq_handler);
     if (hijack_result != 0) return hijack_result;
-    
-    /*
-     * Setup scheduler
-     */
-    dev_init();
-    mutex_init();
     
     /*
      * Setup timing stuff

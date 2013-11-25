@@ -22,14 +22,14 @@
 // Device struct definition.
 struct dev {
     unsigned long next_match;
-	tcb_queue_t   sleep_queue;
+    tcb_queue_t   sleep_queue;
 };
 typedef struct dev dev_t;
 
 // Number of millis between each device interrupt
 #define DEV_INT_PERIOD 50
 
-void dev_init();
+void dev_init(unsigned long millis);
 void dev_enqueue(tcb_t *task_ptr, unsigned int dev_num);
-void dev_update(unsigned long num_millis);
+void dev_update(unsigned long millis);
 #endif /* DEVICE_H */

@@ -8,9 +8,8 @@
 
 #include <exports.h>
 
-void raise(void)
-{
-	puts("Divide by zero -- In kernel\n");
+void raise(void) {
+    puts("Divide by zero -- In kernel\n");
 
-	while(1);
+    while(1);
 }

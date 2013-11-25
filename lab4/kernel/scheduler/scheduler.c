@@ -18,6 +18,8 @@
 #include <arm/interrupt.h>
 #include "scheduler.h"
 #include "runqueue.h"
+#include "devices.h"
+#include "mutex.h"
 
 // Convenience macros
 #define GET_KSTACK_START(task_block) (\
@@ -54,11 +56,13 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     // No naughty business with the runqueue when we're adding to it!
     INT_ATOMIC_START;
     
-    // Init runqueue
+    // Re-init scheduler
     runqueue_init();
+    dev_init();
+    mutex_init();
     
     // Init TCBs
-	uint32_t i;
+    uint32_t i;
     for (i = 0; i < num_tasks; i++) {
         // TODO: Sanity checks
         

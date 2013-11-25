@@ -26,60 +26,60 @@
  * Code to take an IRQ.
  */
 FUNC(irq_handler)
-	/* lr starts off pointing at next instruction + 4 -- fix this. */
-	sub      lr, lr, #4
+    /* lr starts off pointing at next instruction + 4 -- fix this. */
+    sub      lr, lr, #4
 
-	/* No nesting -- this is a temporary stack. */
-	ldr      sp, =irq_stack_hi
-	stmfd    sp!, {r0,r1}       @ Push r0, r1
+    /* No nesting -- this is a temporary stack. */
+    ldr      sp, =irq_stack_hi
+    stmfd    sp!, {r0,r1}       @ Push r0, r1
 
-	/* Move special regs into r0, r1. */
-	mrs      r0, spsr       @ set r0 = cpsr_prev
-	mov      r1, lr         @ set r1 = lr_irq
+    /* Move special regs into r0, r1. */
+    mrs      r0, spsr       @ set r0 = cpsr_prev
+    mov      r1, lr         @ set r1 = lr_irq
 
-	/* Switch to supervisor mode with IRQs and FIQs disabled.
+    /* Switch to supervisor mode with IRQs and FIQs disabled.
        We don't want nested IRQs. */
-	msr      cpsr_c, #(PSR_MODE_SVC | PSR_IRQ | PSR_FIQ)
+    msr      cpsr_c, #(PSR_MODE_SVC | PSR_IRQ | PSR_FIQ)
 
-	/* Diq the spsr_svc because svc-mode (SWI) entry code saves it with IRQ 
-	 * disabled.  I feel so dirty doing this.  
-	 * We need to diq spsr because we need atomic reload of pc and cpsr
-	 * during the return sequence in case we came in from user mode.
-	 */
-	msr      spsr, r0   @ set spsr_svc = cpsr_prev (NOT cpsr_irq)
+    /* Diq the spsr_svc because svc-mode (SWI) entry code saves it with IRQ 
+     * disabled.  I feel so dirty doing this.  
+     * We need to diq spsr because we need atomic reload of pc and cpsr
+     * during the return sequence in case we came in from user mode.
+     */
+    msr      spsr, r0   @ set spsr_svc = cpsr_prev (NOT cpsr_irq)
 
-	/* Save lr, pop of r0, r1 from irq stack, and then put them all on the 
-	 * svc stack along with other caller-save registers.
-	 * The stack will look like:
-	 * {r0-r3, r8, ip, lr, pc} of source
-	 */
-	stmfd    sp!, {r1}                  @ push lr_irq onto SVC stack
-	ldr      r1, =irq_stack_lo
-	ldm      r1, {r0, r1}               @ restore r0, r1
-	stmfd    sp!, {r0-r3, r8, ip, lr}   @ push caller saved registers
+    /* Save lr, pop of r0, r1 from irq stack, and then put them all on the 
+     * svc stack along with other caller-save registers.
+     * The stack will look like:
+     * {r0-r3, r8, ip, lr, pc} of source
+     */
+    stmfd    sp!, {r1}                  @ push lr_irq onto SVC stack
+    ldr      r1, =irq_stack_lo
+    ldm      r1, {r0, r1}               @ restore r0, r1
+    stmfd    sp!, {r0-r3, r8, ip, lr}   @ push caller saved registers
                                         @ onto SVC stack. Note lr refers
                                         @ to lr_svc
 
-	/* Recover user registers and save */
-	mrs      r0, spsr               @ set r0 = cpsr_prev
-	stmfd    sp, {r0, sp, lr}^      @ save cpsr_prev, sp_usr, lr_usr into
+    /* Recover user registers and save */
+    mrs      r0, spsr               @ set r0 = cpsr_prev
+    stmfd    sp, {r0, sp, lr}^      @ save cpsr_prev, sp_usr, lr_usr into
                                     @ SVC stack
-	add      sp, sp, #-12           @ Increment sp_svc due to pushed
+    add      sp, sp, #-12           @ Increment sp_svc due to pushed
                                     @ vals.
 
-	/* Set up r8 correctly with u-boot dispatch table. */
-	ldr      ip, =uboot_exports
-	ldr      r8, [ip]
-	
-	/* Call the IRQ handler in C. */
-	bl      irq_handler_c
+    /* Set up r8 correctly with u-boot dispatch table. */
+    ldr      ip, =uboot_exports
+    ldr      r8, [ip]
+    
+    /* Call the IRQ handler in C. */
+    bl      irq_handler_c
 
-	/* Restore registers.  Also restore CPSR. */
-	ldmfd    sp, {r0, sp, lr}^              @ set r0 = cpsr_prev.
+    /* Restore registers.  Also restore CPSR. */
+    ldmfd    sp, {r0, sp, lr}^              @ set r0 = cpsr_prev.
                                             @ Restore sp_usr, lr_usr
-	add      sp, sp, #12
-	msr      spsr, r0                       @ set spsr_svc = cpsr_prev
-	ldmfd    sp!, {r0-r3, r8, ip, lr, pc}^  @ Restore all registers.
+    add      sp, sp, #12
+    msr      spsr, r0                       @ set spsr_svc = cpsr_prev
+    ldmfd    sp!, {r0-r3, r8, ip, lr, pc}^  @ Restore all registers.
                                             @ Note lr in reg list refers
                                             @ to lr_svc.
     
@@ -93,8 +93,8 @@ FUNC(irq_handler)
  * the the SVC stack.  We don't want a full block IRQ stack, let alone an IRQ stack
  * per task.
  */
-	.bss
-	ALIGN8
+    .bss
+    ALIGN8
 GLOBAL(irq_stack_lo)
-	.space 8
+    .space 8
 GLOBAL(irq_stack_hi)

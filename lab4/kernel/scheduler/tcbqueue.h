@@ -22,7 +22,7 @@
 // Queue struct
 struct tcb_queue {
     uint32_t    size;
-	uint32_t    head;
+    uint32_t    head;
     uint32_t    tail;
     tcb_t*      queue[MAX_TCBQ_SIZE];
 };

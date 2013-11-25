@@ -33,9 +33,9 @@
 
 INLINE uint32_t read_cpsr(void)
 {
-	uint32_t cpsr;
-	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
-	return cpsr;
+    uint32_t cpsr;
+    asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
+    return cpsr;
 }
 
 #endif /* ASSEMBLER */

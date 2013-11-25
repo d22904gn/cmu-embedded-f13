@@ -18,24 +18,24 @@
 
 INLINE uint32_t reg_read(size_t addr)
 {
-	return *((volatile uint32_t*)(PERIPHERAL_BASE + addr));
+    return *((volatile uint32_t*)(PERIPHERAL_BASE + addr));
 }
 
 INLINE void reg_write(size_t addr, uint32_t data)
 {
-	*((volatile uint32_t*)(PERIPHERAL_BASE + addr)) = data;
+    *((volatile uint32_t*)(PERIPHERAL_BASE + addr)) = data;
 }
 
 INLINE void reg_set(size_t addr, uint32_t flags)
 {
-	volatile uint32_t* reg = (volatile uint32_t*)(PERIPHERAL_BASE + addr);
-	*reg = *reg | flags;
+    volatile uint32_t* reg = (volatile uint32_t*)(PERIPHERAL_BASE + addr);
+    *reg = *reg | flags;
 }
 
 INLINE void reg_clear(size_t addr, uint32_t flags)
 {
-	volatile uint32_t* reg = (volatile uint32_t*)(PERIPHERAL_BASE + addr);
-	*reg = *reg & (~flags);
+    volatile uint32_t* reg = (volatile uint32_t*)(PERIPHERAL_BASE + addr);
+    *reg = *reg & (~flags);
 }
 
 #endif /* _REG_H_ */

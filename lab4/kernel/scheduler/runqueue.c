@@ -78,7 +78,7 @@ void runqueue_init() {
  */
 void runqueue_add(tcb_t* tcb, uint8_t prio) {
     // Sanity check
-	if (prio > OS_MAX_TASKS - 1 || run_list[prio]) return;
+    if (prio > OS_MAX_TASKS - 1 || run_list[prio]) return;
     
     // Add task to queue
     run_list[prio] = tcb;
@@ -99,13 +99,13 @@ void runqueue_add(tcb_t* tcb, uint8_t prio) {
  */
 tcb_t* runqueue_remove(uint8_t prio) {
     // Sanity check
-	if (prio > OS_MAX_TASKS - 1 || !run_list[prio]) return 0;
+    if (prio > OS_MAX_TASKS - 1 || !run_list[prio]) return 0;
     
     // If we are removing the idle task, don't actually remove it.
     if (prio == IDLE_PRIO) return run_list[IDLE_PRIO];
     
     // Remove TCB from run list.
-    tcb_t *temp = run_list[prio];
+    tcb_t *item = run_list[prio];
     run_list[prio] = 0;
     
     // Clear run queue data assoc. with TCB.
@@ -114,7 +114,7 @@ tcb_t* runqueue_remove(uint8_t prio) {
     run_bits[group] &= ~(1 << run_bit_offset);
     if (run_bits[group] == 0) group_run_bits &= ~(1 << group);
     
-	return temp;
+    return item;
 }
 
 /**

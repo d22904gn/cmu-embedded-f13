@@ -20,8 +20,8 @@
 
 typedef enum bool
 {
-	FALSE = 0,
-	TRUE
+    FALSE = 0,
+    TRUE
 } bool;
 
 typedef unsigned long       size_t;

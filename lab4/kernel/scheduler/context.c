@@ -35,7 +35,7 @@ void dispatch_save() {
     if (curr_tcb->curr_prio == next_prio) return;
     
     INT_ATOMIC_START;
-	tcb_t *next_tcb = runqueue_remove(next_prio);
+    tcb_t *next_tcb = runqueue_remove(next_prio);
     tcb_t *old_tcb = curr_tcb;
     
     // Mark current task as runnable.

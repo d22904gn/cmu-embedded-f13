@@ -50,11 +50,14 @@ void handle_devices() {
     // Devices are only valid if tasks are defined.
     if (curr_tcb == (tcb_t*) 0) return;
     
+    // Save current time to reduce skew.
+    unsigned long curr_time = time();
+    
     // Wake devices.
-    dev_update(time());
+    dev_update(curr_time);
     
     // Update our device match register.
-    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(time() + DEV_INT_PERIOD));
+    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(curr_time + DEV_INT_PERIOD));
     
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);

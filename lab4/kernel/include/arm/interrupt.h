@@ -62,17 +62,17 @@
 #define INT_ATOMIC_END   enable_interrupts()
 
 INLINE void enable_interrupts() {
-	uint32_t cpsr;
-	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
-	cpsr &= ~(PSR_IRQ | PSR_FIQ);
-	asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
+    uint32_t cpsr;
+    asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
+    cpsr &= ~(PSR_IRQ | PSR_FIQ);
+    asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
 }
 
 INLINE void disable_interrupts() {
-	uint32_t cpsr;
-	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
-	cpsr |= PSR_IRQ | PSR_FIQ;
-	asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
+    uint32_t cpsr;
+    asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
+    cpsr |= PSR_IRQ | PSR_FIQ;
+    asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
 }
 
 #endif /* ASSEMBLER */
