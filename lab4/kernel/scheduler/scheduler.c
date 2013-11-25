@@ -15,6 +15,7 @@
 #include <types.h>
 #include <config.h>
 #include <task.h>
+#include <arm/interrupt.h>
 #include "scheduler.h"
 #include "runqueue.h"
 
@@ -50,6 +51,9 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     // Initial sanity checks
     if (num_tasks > OS_AVAIL_TASKS) return;
     
+    // No naughty business with the runqueue when we're adding to it!
+    INT_ATOMIC_START;
+    
     // Init runqueue
     runqueue_init();
     
@@ -68,12 +72,12 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
         // r4 -> user entry point.
         // r5 -> single argument to the user function called.
         // r6 -> user-mode stack pointer.
-        // r7 -> kernel mode stack pointer
+        // sp -> kernel mode stack pointer
         // lr -> 0 for a new task.
         system_tcb[i].context.r4 = (uint32_t) tasks[i]->lambda;
         system_tcb[i].context.r5 = (uint32_t) tasks[i]->data;
         system_tcb[i].context.r6 = (uint32_t) tasks[i]->stack_pos;
-        system_tcb[i].context.r7 = 
+        system_tcb[i].context.sp = 
             (uint32_t) GET_KSTACK_START(system_tcb[i]);
         system_tcb[i].context.lr = 0;
         
@@ -90,7 +94,7 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     system_tcb[IDLE_PRIO].context.r4 = (uint32_t) idle;
     system_tcb[IDLE_PRIO].context.r5 = 0;
     system_tcb[IDLE_PRIO].context.r6 = 0;
-    system_tcb[IDLE_PRIO].context.r7 = 
+    system_tcb[IDLE_PRIO].context.sp = 
             (uint32_t) GET_KSTACK_START(system_tcb[IDLE_PRIO]);
     system_tcb[IDLE_PRIO].context.lr = 0;
     
@@ -98,5 +102,7 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     
     // Init the current TCB to the idle TCB
     curr_tcb = &system_tcb[IDLE_PRIO];
+    
+    INT_ATOMIC_END;
 }
 

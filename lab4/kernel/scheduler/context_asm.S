@@ -27,12 +27,10 @@
  * r4 contains the user entry point.
  * r5 contains the single argument to the user function called.
  * r6 contains the user-mode stack pointer.
- * r7 contains the kernel mode stack pointer.
  * Upon completion, we should be in user mode.
  */
 
 FUNC(launch_task)
-    mov     sp, r7
 	mov     r0, r5
 	mov     r1, #0
 	mov     r2, #0

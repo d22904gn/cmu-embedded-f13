@@ -58,16 +58,17 @@
 #include <inline.h>
 #include <arm/psr.h>
 
-INLINE void enable_interrupts(void)
-{
+#define INT_ATOMIC_START disable_interrupts()
+#define INT_ATOMIC_END   enable_interrupts()
+
+INLINE void enable_interrupts() {
 	uint32_t cpsr;
 	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
 	cpsr &= ~(PSR_IRQ | PSR_FIQ);
 	asm volatile ("msr cpsr_c, %0" : : "r" (cpsr) : "memory", "cc");
 }
 
-INLINE void disable_interrupts(void)
-{
+INLINE void disable_interrupts() {
 	uint32_t cpsr;
 	asm volatile ("mrs %0, cpsr" : "=r" (cpsr));
 	cpsr |= PSR_IRQ | PSR_FIQ;

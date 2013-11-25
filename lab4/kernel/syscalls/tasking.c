@@ -16,13 +16,7 @@
 #include "../scheduler/scheduler.h"
 #include "../scheduler/devices.h"
 
-#include <arm/interrupt.h>
-
 int task_create(task_t* tasks, size_t num_tasks) {
-    // Don't want device interrupt mucking about with the task
-    // data structures! Bugger off!
-    disable_interrupts();
-    
     // Sanity checks.
     if (num_tasks > OS_AVAIL_TASKS) return -EINVAL;
     

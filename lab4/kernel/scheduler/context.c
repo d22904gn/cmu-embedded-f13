@@ -13,6 +13,7 @@
 
 #include <types.h>
 #include <task.h>
+#include <arm/interrupt.h>
 #include "runqueue.h"
 #include "scheduler.h"
 
@@ -33,11 +34,13 @@ void dispatch_save() {
     uint8_t next_prio = highest_prio();
     if (curr_tcb->curr_prio == next_prio) return;
     
+    INT_ATOMIC_START;
 	tcb_t *next_tcb = runqueue_remove(next_prio);
     tcb_t *old_tcb = curr_tcb;
     
     // Mark current task as runnable.
     runqueue_add(curr_tcb, curr_tcb->curr_prio);
+    INT_ATOMIC_END;
     
     // Update current TCB.
     curr_tcb = next_tcb;
@@ -55,10 +58,12 @@ void dispatch_nosave() {
     uint8_t next_prio = highest_prio();
     if (curr_tcb->curr_prio == next_prio) return;
     
+    INT_ATOMIC_START;
     tcb_t *next_tcb = runqueue_remove(next_prio);
     
     // Mark current task as runnable.
     runqueue_add(curr_tcb, curr_tcb->curr_prio);
+    INT_ATOMIC_END;
     
     // Update current TCB.
     curr_tcb = next_tcb;
@@ -69,8 +74,9 @@ void dispatch_nosave() {
 
 
 /**
- * @brief Context switch to the highest priority task that is not this task -- 
- * and save the current task but don't mark it runnable.
+ * @brief Context switch to the highest priority task that is not the 
+ * current task while saving the current task state. Do not mark the 
+ * current task as runnable.
  *
  * There is always an idle task to switch to.
  */
@@ -79,7 +85,10 @@ void dispatch_sleep() {
     uint8_t next_prio = highest_prio();
     if (curr_tcb->curr_prio == next_prio) return;
     
+    INT_ATOMIC_START;
     tcb_t *next_tcb = runqueue_remove(next_prio);
+    INT_ATOMIC_END;
+    
     tcb_t *old_tcb = curr_tcb;
     
     // Update current TCB.

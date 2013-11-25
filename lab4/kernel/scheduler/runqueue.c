@@ -15,9 +15,6 @@
 #include <types.h>
 #include <task.h>
 
-// XXX:Debug
-#include <exports.h>
-
 static tcb_t* run_list[OS_MAX_TASKS];
 
 /* A high bit in this bitmap means that the task whose priority is
@@ -75,15 +72,13 @@ void runqueue_init() {
  * @brief Adds the thread identified by the given TCB to the runqueue at
  * a given priority.
  *
- * The native priority of the thread need not be the specified priority.  The
- * only requirement is that the run queue for that priority is empty.  This
- * function needs to be externally synchronized.
+ * The native priority of the thread need not be the specified priority.
+ * The only requirement is that the run queue for that priority is
+ * empty. This function needs to be externally synchronized.
  */
 void runqueue_add(tcb_t* tcb, uint8_t prio) {
     // Sanity check
 	if (prio > OS_MAX_TASKS - 1 || run_list[prio]) return;
-    
-    // printf("\n>>>Adding task with prio %u to runqueue.\n", prio);
     
     // Add task to queue
     run_list[prio] = tcb;
@@ -123,8 +118,9 @@ tcb_t* runqueue_remove(uint8_t prio) {
 }
 
 /**
- * @brief This function examines the run bits and the run queue and returns the
- * priority of the runnable task with the highest priority (lower number).
+ * @brief This function examines the run bits and the run queue and
+ * returns the priority of the runnable task with the highest priority
+ * (lower number).
  */
 uint8_t highest_prio(void) {
     // See algorithm in lecture slides.

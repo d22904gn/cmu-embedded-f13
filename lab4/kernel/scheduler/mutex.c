@@ -12,6 +12,7 @@
 #include <bits/errno.h>
 #include <config.h>
 #include <types.h>
+#include <arm/interrupt.h>
 #include "scheduler.h"
 #include "tcbqueue.h"
 #include "runqueue.h"
@@ -45,6 +46,7 @@ int mutex_create() {
 int mutex_lock(int mutex_num) {
     // Sanity checks
     if (mutex_num >= next_mutex) return -EINVAL;
+    
     
     // If mutex is unavailable, put the task on a sleep queue.
     if (!mutexes[mutex_num].is_available) {
@@ -82,7 +84,11 @@ int mutex_unlock(int mutex_num) {
     if (mutexes[mutex_num].sleep_queue.size != 0) {
         tcb_t* next_tcb = 
             tcbqueue_dequeue(&(mutexes[mutex_num].sleep_queue));
+        
+        INT_ATOMIC_START;
         runqueue_add(next_tcb, next_tcb->curr_prio);
+        INT_ATOMIC_END;
+        
         dispatch_save();
     }
     
