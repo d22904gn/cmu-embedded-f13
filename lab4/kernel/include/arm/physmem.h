@@ -1,11 +1,17 @@
 /**
- * @file physmem.h
+ * @file    physmem.h
  *
- * @brief Definitions for Intel PXA-255 physical memory layout.
+ * @brief   Definitions for Intel PXA-255 physical memory layout.
+ *          Also includes sanity checking routines.
  *
- * @author Kartik Subramanian <ksubrama@andrew.cmu.edu>
+ * @author  Kartik Subramanian <ksubrama@andrew.cmu.edu>
  *
- * @date 2008-11-16
+ * @date    2008-11-16
+ * 
+ * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
+ *          Chin Yang Oh <chinyano@andrew.cmu.edu>
+ *          Jennifer Lee <jcl1@andrew.cmu.edu>
+ * @date    24 Nov 2013
  */
 
 #ifndef _PHYSMEM_H_
@@ -20,18 +26,19 @@
 
 #include <types.h>
 #include <config.h>
+#include <inline.h>
 
-bool in_ram(void* addr) {
-    
+INLINE bool in_ram(uint32_t addr) {
+    return (RAM_START_ADDR <= addr && addr <= RAM_END_ADDR);
 }
 
-bool in_writable_mem(void* addr) {
+INLINE bool in_readable_mem(uint32_t addr) {
+    return (addr <= FLASH_END_ADDR) ||
+           (RAM_START_ADDR <= addr && addr <= RAM_END_ADDR);
 }
 
-bool in_readable_mem(void* addr) {
-}
-
-bool in_userspace(void* addr) {
+INLINE bool in_userspace(uint32_t addr) {
+    return (USR_PROG_ENTRY <= addr && addr <= USR_STACK_START);
 }
 
 #endif /* ASSEMBLER */

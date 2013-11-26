@@ -9,10 +9,11 @@
  * @date    20 Nov 2013
  */
 
+#include <types.h>
+#include <arm/interrupt.h>
 #include <arm/physmem.h>
 #include <bits/fileno.h>
 #include <bits/errno.h>
-#include <types.h>
 #include <exports.h>
 #include <chars.h>
 

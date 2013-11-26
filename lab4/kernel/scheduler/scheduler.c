@@ -16,15 +16,16 @@
 #include <config.h>
 #include <task.h>
 #include <arm/interrupt.h>
+#include <arm/physmem.h>
 #include "scheduler.h"
 #include "runqueue.h"
 #include "devices.h"
 #include "mutex.h"
+#include "../syscalls/syscalls.h"
 
-// Convenience macros
+// Macro to calculate the start of the kernel stack for each TCB.
 #define GET_KSTACK_START(task_block) (\
-    ((char*) (&task_block)) + \
-    (sizeof((task_block)) - sizeof(uint32_t)) \
+    ((char*) (&task_block)) + sizeof((task_block)) - 1\
 )
 
 tcb_t system_tcb[OS_MAX_TASKS]; /* allocate memory for system TCBs */
@@ -58,19 +59,24 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     
     // Re-init scheduler
     runqueue_init();
-    dev_init();
     mutex_init();
+    dev_init(time());
     
     // Init TCBs
     uint32_t i;
+    uint32_t prio_idx = 0;
+    
     for (i = 0; i < num_tasks; i++) {
-        // TODO: Sanity checks
+        // Skip invalid tasks.
+        if (!in_userspace((uint32_t) tasks[i]->lambda) ||
+            !in_userspace((uint32_t) tasks[i]->stack_pos))
+            continue;
         
         // Setup prioities and locks
-        system_tcb[i].native_prio = i;
-        system_tcb[i].curr_prio = i;
-        system_tcb[i].holds_lock = FALSE;
-        system_tcb[i].prio_src = 0;
+        system_tcb[prio_idx].native_prio = prio_idx;
+        system_tcb[prio_idx].curr_prio = prio_idx;
+        system_tcb[prio_idx].holds_lock = FALSE;
+        system_tcb[prio_idx].prio_src = 0;
         
         // Setup task stack for launch_task
         // r4 -> user entry point.
@@ -78,15 +84,17 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
         // r6 -> user-mode stack pointer.
         // sp -> kernel mode stack pointer
         // lr -> 0 for a new task.
-        system_tcb[i].context.r4 = (uint32_t) tasks[i]->lambda;
-        system_tcb[i].context.r5 = (uint32_t) tasks[i]->data;
-        system_tcb[i].context.r6 = (uint32_t) tasks[i]->stack_pos;
-        system_tcb[i].context.sp = 
-            (uint32_t) GET_KSTACK_START(system_tcb[i]);
-        system_tcb[i].context.lr = 0;
+        system_tcb[prio_idx].context.r4 = (uint32_t) tasks[i]->lambda;
+        system_tcb[prio_idx].context.r5 = (uint32_t) tasks[i]->data;
+        system_tcb[prio_idx].context.r6 =
+            (uint32_t) tasks[i]->stack_pos;
+        system_tcb[prio_idx].context.sp = 
+            (uint32_t) GET_KSTACK_START(system_tcb[prio_idx]);
+        system_tcb[prio_idx].context.lr = 0;
         
         // Add to runqueue
-        runqueue_add(&system_tcb[i], i);
+        runqueue_add(&system_tcb[prio_idx], prio_idx);
+        prio_idx++;
     }
     
     // Init idle TCB

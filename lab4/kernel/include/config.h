@@ -10,8 +10,10 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#define KERNEL_ENTRY        0xa3000000
+
 #define USR_PROG_ENTRY      0xa0000000
-#define USR_STACK_START     0xa3000000
+#define USR_STACK_START     0xa2ffffff
 
 #define OS_KSTACK_SIZE      4096
 #define OS_USTACK_ALIGN     1024

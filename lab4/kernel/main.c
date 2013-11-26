@@ -14,6 +14,7 @@
 #include <arm/reg.h>
 #include <arm/interrupt.h>
 #include <arm/timer.h>
+#include "scheduler/devices.h"
 
 #define PREFETCH_OFFSET 8
 #define SWI_VEC_ADDR    0x8u
