@@ -21,6 +21,7 @@
 #include "runqueue.h"
 #include "devices.h"
 #include "mutex.h"
+#include "../utils/math.h"
 #include "../syscalls/syscalls.h"
 
 // Macro to calculate the start of the kernel stack for each TCB.
@@ -69,7 +70,8 @@ void allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     for (i = 0; i < num_tasks; i++) {
         // Skip invalid tasks.
         if (!in_userspace((uint32_t) tasks[i]->lambda) ||
-            !in_userspace((uint32_t) tasks[i]->stack_pos))
+            !in_userspace((uint32_t) tasks[i]->stack_pos)||
+            !multiple_of_8((uint32_t) tasks[i]->stack_pos))
             continue;
         
         // Setup prioities and locks

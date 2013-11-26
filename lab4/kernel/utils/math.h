@@ -22,3 +22,7 @@ INLINE int fast_modulo(int a, int b) {
     
     return a;
 }
+
+INLINE bool multiple_of_8(uint32_t a) {
+    return !(a & 7);
+}
