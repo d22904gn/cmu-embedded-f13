@@ -13,6 +13,7 @@
 
 int mutex = 0;
 int fun1_iter = 0;
+int fun2_iter = 0;
 
 void panic(const char* str)
 {
@@ -20,33 +21,37 @@ void panic(const char* str)
 	while(1);
 }
 
-void fun1(void* str)
-{
-    int is_even = 0;
-	while(1)
-	{
-        is_even = fun1_iter % 2;
-        if (!parity) {
-            mutex_unlock(mutex);
-            
-        }
+void fun1(void* str) {
+	while (1) {
+        if (fun1_iter == 0) mutex_lock(mutex);
         
 		putchar((int)str);
-		if (event_wait(0) < 0)
-			panic("Dev 0 failed");
+        
+        fun1_iter++;
+        
+        if (fun1_iter == 5) {
+            fun1_iter = 0;
+            mutex_unlock(mutex);
+        }
+        
+		if (event_wait(0) < 0) panic("Dev 0 failed");
 	}
 }
 
-
-void fun2(void* str)
-{
-	while(1)
-	{
-        mutex_lock(mutex);
+void fun2(void* str) {
+	while(1) {
+        if (fun2_iter == 0) mutex_lock(mutex);
+        
 		putchar((int)str);
-		if (event_wait(1) < 0)
-			panic("Dev 1 failed");
-        mutex_unlock(mutex);
+        
+        fun2_iter++;
+        
+        if (fun2_iter == 3) {
+            fun2_iter = 0;
+            mutex_unlock(mutex);
+        }
+        
+		if (event_wait(1) < 0) panic("Dev 1 failed");
 	}
 }
 
