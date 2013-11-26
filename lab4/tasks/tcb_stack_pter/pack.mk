@@ -1,0 +1,6 @@
+PROGS_TCB_STACK_PTER_OBJS := tcb_stack_pter.o
+PROGS_TCB_STACK_PTER_OBJS := $(PROGS_TCB_STACK_PTER_OBJS:%=$(TDIR)/tcb_stack_pter/%)
+ALL_OBJS += $(PROGS_TCB_STACK_PTER_OBJS)
+
+$(TDIR)/bin/tcb_stack_pter : $(TSTART) $(PROGS_TCB_STACK_PTER_OBJS) $(TLIBC)
+
