@@ -26,11 +26,15 @@ void ctx_switch_full(sched_context_t *next_ctx,
 void ctx_switch_half(sched_context_t *next_ctx);
 
 /**
- * @brief Context switch to the highest priority task that is not the 
- * current task while saving off the current task state.
+ * @brief Context switch to the next highest priority task that is not
+ * the current task while saving off the current task state.
  */
 void dispatch_save() {
-    // Check that we have a different task.
+    /* Check that a different task exists. We could be calling dispatch
+     * from the idle task, but not have any runnable tasks yet.
+     * Technically it would still be safe to context switch the same
+     * task to itself but we don't want to waste extra cycles doing the 
+     * switch. */
     uint8_t next_prio = highest_prio();
     if (curr_tcb->curr_prio == next_prio) return;
     
@@ -54,7 +58,11 @@ void dispatch_save() {
  * current task without saving the current task state.
  */
 void dispatch_nosave() {
-    // Check that we have a different task.
+    /* Check that a different task exists. We could be calling dispatch
+     * from the idle task, but not have any runnable tasks yet.
+     * Technically it would still be safe to context switch the same
+     * task to itself but we don't want to waste extra cycles doing the 
+     * switch. */
     uint8_t next_prio = highest_prio();
     if (curr_tcb->curr_prio == next_prio) return;
     
@@ -74,14 +82,18 @@ void dispatch_nosave() {
 
 
 /**
- * @brief Context switch to the highest priority task that is not the 
- * current task while saving the current task state. Do not mark the 
+ * @brief Context switch to the next highest priority task that is not
+ * the current task while saving the current task state. Do not mark the 
  * current task as runnable.
  *
  * There is always an idle task to switch to.
  */
 void dispatch_sleep() {
-    // Check that we have a different task.
+    /* Check that a different task exists. We could be calling dispatch
+     * from the idle task, but not have any runnable tasks yet.
+     * Technically it would still be safe to context switch the same
+     * task to itself but we don't want to waste extra cycles doing the 
+     * switch. */
     uint8_t next_prio = highest_prio();
     if (curr_tcb->curr_prio == next_prio) return;
     

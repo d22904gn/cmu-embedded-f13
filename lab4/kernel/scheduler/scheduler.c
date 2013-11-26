@@ -50,7 +50,7 @@ static void idle() {
  * @param tasks  A list of scheduled task descriptors.
  * @param size   The number of tasks is the list.
  */
-void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
+void allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     // Initial sanity checks
     if (num_tasks > OS_AVAIL_TASKS) return;
     
@@ -118,3 +118,10 @@ void allocate_tasks(task_t** tasks, uint32_t num_tasks) {
     INT_ATOMIC_END;
 }
 
+/**
+ * Returns TRUE if the argument task has a higher priority than the
+ * currently running task.
+ */
+bool is_higher_prio(tcb_t* task) {
+    return (task->curr_prio < curr_tcb->curr_prio);
+}

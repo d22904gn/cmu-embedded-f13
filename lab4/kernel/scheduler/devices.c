@@ -63,6 +63,7 @@ void dev_update(unsigned long millis) {
      * 2. runqueue
      */
     uint32_t i;
+    bool need_to_switch = FALSE;
     
     for (i = 0; i < NUM_DEVICES; i++) {
         if (devices[i].next_match <= millis) {
@@ -70,6 +71,10 @@ void dev_update(unsigned long millis) {
             while (devices[i].sleep_queue.size != 0) {
                 tcb_t *next_tcb = 
                     tcbqueue_dequeue(&(devices[i].sleep_queue));
+                
+                /* Check if we need to context switch after this
+                 * interrupt. */
+                if (is_higher_prio(next_tcb)) need_to_switch = TRUE;
                 
                 runqueue_add(next_tcb, next_tcb->native_prio);
             }
@@ -80,5 +85,5 @@ void dev_update(unsigned long millis) {
     }
     
     // Switch into the new TCBs if needed.
-    dispatch_save();
+    if (need_to_switch) dispatch_save();
 }

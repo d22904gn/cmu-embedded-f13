@@ -47,7 +47,6 @@ int mutex_lock(int mutex_num) {
     // Sanity checks
     if (mutex_num >= next_mutex) return -EINVAL;
     
-    
     // If mutex is unavailable, put the task on a sleep queue.
     if (!mutexes[mutex_num].is_available) {
         // Make sure task does not acquire same mutex twice.
@@ -76,20 +75,29 @@ int mutex_unlock(int mutex_num) {
     if (mutexes[mutex_num].curr_owner->native_prio !=
         curr_tcb->native_prio) return -EPERM;
     
+    // Mark the current owner as not holding a mutex.
     mutexes[mutex_num].curr_owner->holds_lock = FALSE;
-    mutexes[mutex_num].curr_owner = 0;
-    mutexes[mutex_num].is_available = TRUE;
     
-    // Check if we need to wake anything
+    // Check if other tasks want the mutex.
     if (mutexes[mutex_num].sleep_queue.size != 0) {
         tcb_t* next_tcb = 
             tcbqueue_dequeue(&(mutexes[mutex_num].sleep_queue));
+        
+        // Give next task the mutex.
+        mutexes[mutex_num].curr_owner = next_tcb;
+        mutexes[mutex_num].curr_owner->holds_lock = TRUE;
         
         INT_ATOMIC_START;
         runqueue_add(next_tcb, next_tcb->curr_prio);
         INT_ATOMIC_END;
         
-        dispatch_save();
+        /* If the next task has a higher priority than the current task,
+         * context switch to it immediately. */
+        if (is_higher_prio(next_tcb)) dispatch_save();
+    } else {
+        // Safe to release mutex if no other tasks want it currently.
+        mutexes[mutex_num].curr_owner = 0;
+        mutexes[mutex_num].is_available = TRUE;
     }
     
     return 0;

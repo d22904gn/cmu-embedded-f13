@@ -16,8 +16,11 @@
 // Globals
 extern tcb_t *curr_tcb;     // Currently running task.
 
-// C Routines
-void allocate_tasks(task_t** tasks, uint32_t num_tasks);
+// Tasking routines
+void allocate_tasks(task_t **tasks, uint32_t num_tasks);
+bool is_higher_prio(tcb_t *task);
+
+// Context related routines
 void dispatch_save();
 void dispatch_nosave();
 void dispatch_sleep();
