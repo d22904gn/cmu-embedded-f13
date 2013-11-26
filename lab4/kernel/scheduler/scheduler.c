@@ -24,8 +24,8 @@
 #include "../syscalls/syscalls.h"
 
 // Macro to calculate the start of the kernel stack for each TCB.
-#define GET_KSTACK_START(task_block) (\
-    ((char*) (&(task_block.kstack))) + OS_KSTACK_SIZE\
+#define GET_KSTACK_START(task_block) ( \
+    ((char*) task_block.kstack) + OS_KSTACK_SIZE \
 )
 
 tcb_t system_tcb[OS_MAX_TASKS]; /* allocate memory for system TCBs */
