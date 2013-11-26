@@ -1,0 +1,6 @@
+PROGS_TCB_TEST_OBJS := tcb_test.o
+PROGS_TCB_TEST_OBJS := $(PROGS_TCB_TEST_OBJS:%=$(TDIR)/tcb_test/%)
+ALL_OBJS += $(PROGS_TCB_TEST_OBJS)
+
+$(TDIR)/bin/tcb_test : $(TSTART) $(PROGS_TCB_TEST_OBJS) $(TLIBC)
+
