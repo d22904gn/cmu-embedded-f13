@@ -30,16 +30,8 @@ void ctx_switch_half(sched_context_t *next_ctx);
  * the current task while saving off the current task state.
  */
 void dispatch_save() {
-    /* Check that a different task exists. We could be calling dispatch
-     * from the idle task, but not have any runnable tasks yet.
-     * Technically it would still be safe to context switch the same
-     * task to itself but we don't want to waste extra cycles doing the 
-     * switch. */
-    uint8_t next_prio = highest_prio();
-    if (curr_tcb->curr_prio == next_prio) return;
-    
     INT_ATOMIC_START;
-    tcb_t *next_tcb = runqueue_remove(next_prio);
+    tcb_t *next_tcb = runqueue_remove(highest_prio());
     tcb_t *old_tcb = curr_tcb;
     
     // Mark current task as runnable.
@@ -57,17 +49,9 @@ void dispatch_save() {
  * @brief Context switch to the highest priority task that is not the 
  * current task without saving the current task state.
  */
-void dispatch_nosave() {
-    /* Check that a different task exists. We could be calling dispatch
-     * from the idle task, but not have any runnable tasks yet.
-     * Technically it would still be safe to context switch the same
-     * task to itself but we don't want to waste extra cycles doing the 
-     * switch. */
-    uint8_t next_prio = highest_prio();
-    if (curr_tcb->curr_prio == next_prio) return;
-    
+void dispatch_nosave() {    
     INT_ATOMIC_START;
-    tcb_t *next_tcb = runqueue_remove(next_prio);
+    tcb_t *next_tcb = runqueue_remove(highest_prio());
     
     // Mark current task as runnable.
     runqueue_add(curr_tcb, curr_tcb->curr_prio);
@@ -88,17 +72,9 @@ void dispatch_nosave() {
  *
  * There is always an idle task to switch to.
  */
-void dispatch_sleep() {
-    /* Check that a different task exists. We could be calling dispatch
-     * from the idle task, but not have any runnable tasks yet.
-     * Technically it would still be safe to context switch the same
-     * task to itself but we don't want to waste extra cycles doing the 
-     * switch. */
-    uint8_t next_prio = highest_prio();
-    if (curr_tcb->curr_prio == next_prio) return;
-    
+void dispatch_sleep() {    
     INT_ATOMIC_START;
-    tcb_t *next_tcb = runqueue_remove(next_prio);
+    tcb_t *next_tcb = runqueue_remove(highest_prio());
     INT_ATOMIC_END;
     
     tcb_t *old_tcb = curr_tcb;

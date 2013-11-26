@@ -38,7 +38,7 @@ INLINE bool in_readable_mem(uint32_t addr) {
 }
 
 INLINE bool in_userspace(uint32_t addr) {
-    return (USR_PROG_ENTRY <= addr && addr <= USR_STACK_START);
+    return (USR_PROG_ENTRY <= addr && addr < USR_STACK_START);
 }
 
 #endif /* ASSEMBLER */
