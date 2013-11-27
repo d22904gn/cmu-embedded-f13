@@ -45,7 +45,7 @@ int task_create(task_t* tasks, size_t num_tasks) {
     }
     
     // Init TCBs
-    allocate_tasks(sorted_tasks, num_tasks);
+    if (!allocate_tasks(sorted_tasks, num_tasks)) return -EFAULT;
     
     // Start tasks
     dispatch_nosave();

@@ -51,9 +51,9 @@ static void idle() {
  * @param tasks  A list of scheduled task descriptors.
  * @param size   The number of tasks is the list.
  */
-void allocate_tasks(task_t **tasks, uint32_t num_tasks) {
+bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     // Initial sanity checks
-    if (num_tasks > OS_AVAIL_TASKS) return;
+    if (num_tasks > OS_AVAIL_TASKS) return FALSE;
     
     // No naughty business with the runqueue when we're adding to it!
     INT_ATOMIC_START;
@@ -68,11 +68,11 @@ void allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     uint32_t prio_idx = 0;
     
     for (i = 0; i < num_tasks; i++) {
-        // Skip invalid tasks.
+        // Check for invalid tasks.
         if (!in_userspace((uint32_t) tasks[i]->lambda) ||
             !in_userspace((uint32_t) tasks[i]->stack_pos)||
             !multiple_of_8((uint32_t) tasks[i]->stack_pos))
-            continue;
+            return FALSE;
         
         // Setup prioities and locks
         system_tcb[prio_idx].native_prio = prio_idx;
@@ -118,6 +118,8 @@ void allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     curr_tcb = &system_tcb[IDLE_PRIO];
     
     INT_ATOMIC_END;
+    
+    return TRUE;
 }
 
 /**

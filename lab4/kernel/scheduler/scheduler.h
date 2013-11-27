@@ -17,7 +17,7 @@
 extern tcb_t *curr_tcb;     // Currently running task.
 
 // Tasking routines
-void allocate_tasks(task_t **tasks, uint32_t num_tasks);
+bool allocate_tasks(task_t **tasks, uint32_t num_tasks);
 bool is_higher_prio(tcb_t *task);
 
 // Context related routines
