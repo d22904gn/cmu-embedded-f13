@@ -21,28 +21,18 @@ int task_create(task_t* tasks, size_t num_tasks) {
     if (num_tasks > OS_AVAIL_TASKS) return -EINVAL;
     
     /*
-     * Sort tasks for RMA scheduling
+     * Assign schedule via RMA scheduling.
      */
     task_t* sorted_tasks[num_tasks];
-    size_t i, j, min_idx;
+    size_t i;
     
-    // Selection sort prep
+    // Prep
     for (i = 0; i < num_tasks; i++) {
         sorted_tasks[i] = tasks + i;
     }
     
-    for (i = 0; i < num_tasks; i++) {
-        min_idx = i;
-        for (j = i + 1; j < num_tasks; j++) {
-            if (sorted_tasks[j]->T < sorted_tasks[min_idx]->T) { 
-                min_idx = j;
-            }
-        }
-        // Swap in place.
-        task_t* temp_min = sorted_tasks[min_idx];
-        sorted_tasks[min_idx] = sorted_tasks[i];
-        sorted_tasks[i] = temp_min;
-    }
+    // Perform UB test.
+    if (!assign_schedule(sorted_tasks, num_tasks)) return -EFAULT;
     
     // Init TCBs
     if (!allocate_tasks(sorted_tasks, num_tasks)) return -EFAULT;

@@ -64,7 +64,6 @@ void dispatch_nosave() {
     ctx_switch_half(&(next_tcb->context));
 }
 
-
 /**
  * @brief Context switch to the next highest priority task that is not
  * the current task while saving the current task state. Do not mark the 
