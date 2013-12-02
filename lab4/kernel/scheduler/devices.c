@@ -11,9 +11,6 @@
 #include <task.h>
 #include <arm/interrupt.h>
 #include "scheduler.h"
-#include "devices.h"
-#include "runqueue.h"
-#include "tcbqueue.h"
 
 /* devices will be periodically signaled at the following frequencies */
 const unsigned long dev_freq[NUM_DEVICES] = {100, 200, 500, 50};

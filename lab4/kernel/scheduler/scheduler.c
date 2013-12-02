@@ -18,11 +18,9 @@
 #include <arm/interrupt.h>
 #include <arm/physmem.h>
 #include "scheduler.h"
-#include "runqueue.h"
-#include "devices.h"
-#include "mutex.h"
 #include "../utils/math.h"
 #include "../syscalls/syscalls.h"
+#include "../syscalls/sleep_tasking.h"
 
 // Macro to calculate the start of the kernel stack for each TCB.
 #define GET_KSTACK_START(task_block) ( \
@@ -39,11 +37,9 @@ static void idle() {
 }
 
 /**
- * @brief Resets the runqueue and inits the scheduler with an idle task.
+ * @brief Initializes the idle task.
  */
-void scheduler_init() {
-    runqueue_init();
-    
+void idle_init() {
     // Init idle TCB.
     system_tcb[IDLE_PRIO].native_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].curr_prio = IDLE_PRIO;
@@ -147,9 +143,11 @@ bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     // No naughty business with the runqueue when we're adding to it!
     INT_ATOMIC_START;
     
-    // Re-init scheduler
-    scheduler_init();
+    // Re-init scheduler system
+    runqueue_init();
+    sleepers_init();
     mutex_init();
+    idle_init();
     dev_init(time());
     
     /*

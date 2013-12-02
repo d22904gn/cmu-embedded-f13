@@ -14,7 +14,7 @@ MAKEFLAGS += -rR
 # Make sure there are no name clashes.  Add new ones here if you make your own
 # tests (which I recommend you do).
 
-PACKAGES = dagger hello rot13_arg splat typo mutex_test task_nest tcb_test tcb_stack_pter
+PACKAGES = dagger hello mutex_test task_nest tcb_test tcb_stack_pter sleep_simple
 
 .PHONY: all package clean clobber $(PACKAGES)
 all: package kernel

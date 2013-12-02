@@ -11,6 +11,3 @@
 
 // Tracks # of clock overflows since kernel init.
 extern volatile uint32_t clock_overflows;
-
-// Tracks number of sleep interrupts encountered so far.
-extern volatile uint32_t sleep_interrupts;

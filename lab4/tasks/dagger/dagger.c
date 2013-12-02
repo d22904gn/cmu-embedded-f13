@@ -38,8 +38,7 @@ void fun2(void* str)
 	}
 }
 
-int main(int argc __attribute((unused)),
-         char** argv __attribute((unused)))
+int main(int argc, char** argv)
 {
 	task_t tasks[2];
 	tasks[0].lambda = fun1;
@@ -54,6 +53,8 @@ int main(int argc __attribute((unused)),
 	tasks[1].T = PERIOD_DEV1;
 
 	task_create(tasks, 2);
+	argc=argc; /* remove compiler warning */
+	argv[0]=argv[0]; /* remove compiler warning */
 
 	puts("Why did your code get here!\n");
 	return 0;

@@ -14,9 +14,6 @@
 #include <types.h>
 #include <arm/interrupt.h>
 #include "scheduler.h"
-#include "tcbqueue.h"
-#include "runqueue.h"
-#include "mutex.h"
 
 // Allocate space for mutexes
 mutex_t mutexes[OS_NUM_MUTEX];

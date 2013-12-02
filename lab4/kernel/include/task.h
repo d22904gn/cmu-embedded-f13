@@ -25,12 +25,12 @@
 typedef void (*task_fun_t)(void*);
 
 struct task {
-    task_fun_t    lambda;      /**< The root function of this task */
-    void*         data;        /**< Argument to the root function */
-    void*         stack_pos;   /**< The starting position of the task's sp */
-    unsigned long C;           /**< The worst-case computation time */
-    unsigned long T;           /**< The task's period */
-    unsigned long B;
+    task_fun_t    lambda;      /* The root function of this task */
+    void*         data;        /* Argument to the root function */
+    void*         stack_pos;   /* The starting position of the task's sp */
+    unsigned long C;           /* The worst-case computation time */
+    unsigned long T;           /* The task's period */
+    unsigned long B;           /* Blocking term */
 };
 typedef struct task task_t;
 
@@ -53,12 +53,12 @@ typedef volatile struct sched_context sched_context_t;
 
 
 struct tcb {
-    uint8_t         native_prio;        /** The native priority of the task without escalation */
-    uint8_t         curr_prio;          /** The current priority of the task after priority inheritance */
-    sched_context_t context;            /** The task's serialized context -- if not running */
-    bool            holds_lock;         /** TRUE if the task is currently owning a lock */
-    volatile struct tcb* prio_src;      /** Task that this TCB inherits priority from **/
-    /** Embed the kernel stack here -- AAPCS wants 8 byte alignment */
+    uint8_t         native_prio;        /* The native priority of the task without escalation */
+    uint8_t         curr_prio;          /* The current priority of the task after priority inheritance */
+    sched_context_t context;            /* The task's serialized context -- if not running */
+    bool            holds_lock;         /* TRUE if the task is currently owning a lock */
+    volatile struct tcb* prio_src;      /* Task that this TCB inherits priority from */
+    /* Embed the kernel stack here -- AAPCS wants 8 byte alignment */
     uint32_t        kstack[OS_KSTACK_SIZE/sizeof(uint32_t)] 
                          __attribute__((aligned(8)));
 };

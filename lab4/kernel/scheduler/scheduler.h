@@ -13,6 +13,12 @@
 #include <types.h>
 #include <task.h>
 
+// Related routines.
+#include "../scheduler/runqueue.h"
+#include "../scheduler/tcbqueue.h"
+#include "../scheduler/devices.h"
+#include "../scheduler/mutex.h"
+
 // Globals
 extern tcb_t *curr_tcb;     // Currently running task.
 

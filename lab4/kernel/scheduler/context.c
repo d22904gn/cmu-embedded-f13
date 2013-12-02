@@ -14,7 +14,6 @@
 #include <types.h>
 #include <task.h>
 #include <arm/interrupt.h>
-#include "runqueue.h"
 #include "scheduler.h"
 
 // Global which tracks the currently executing task.

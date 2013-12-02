@@ -12,33 +12,32 @@
 #include <types.h>
 #include <arm/reg.h>
 #include <arm/timer.h>
+#include "../scheduler/scheduler.h"
 #include "../interrupts/timer_vars.h"
+#include "sleep_tasking.h"
 
+/**
+ * @brief Get time from kernel start.
+ **/
 unsigned long time() {
     return (clock_overflows * MS_PER_OVERFLOW) +
            get_ms(reg_read(OSTMR_OSCR_ADDR));
 }
 
-/* 
+/**
+ * @brief Suspend task for specified milliseconds
+ * 
  * Sleep algorithm:
- *   1. Split time to wait into blocks of 10 minutes (Time to overflow)
- *   2. Wait out as many 10 minute blocks as needed.
+ *   1. Split time to wait into blocks of 20 minutes (Time to overflow)
+ *   2. Wait out as many 20 minute blocks as needed.
  *   3. Wait out last remaining block.
  */
 void sleep(unsigned long millis) {
-    // Step 1
+    // Calculate values for OSMR.
     uint32_t overflows_needed = millis / MS_PER_OVERFLOW;
-    uint32_t remainder = get_ticks(millis % MS_PER_OVERFLOW);
+    uint32_t remainder_ticks = get_ticks(millis % MS_PER_OVERFLOW);
     
-    // Step 2
-    reg_write(OSTMR_OSMR_ADDR(0), reg_read(OSTMR_OSCR_ADDR));
-    while (sleep_interrupts < overflows_needed);
-    
-    // Step 3
-    reg_write(OSTMR_OSMR_ADDR(0),
-              reg_read(OSTMR_OSCR_ADDR) + remainder);
-    while (sleep_interrupts == overflows_needed);
-    
-    // Reset sleep_interrupts, since we are done.
-    sleep_interrupts = 0;
+    // Add current task to the sleeping list and send it to sleep.
+    sleepers_add(curr_tcb, overflows_needed, remainder_ticks);
+    dispatch_sleep();
 }

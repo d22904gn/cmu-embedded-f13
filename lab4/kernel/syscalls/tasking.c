@@ -14,7 +14,6 @@
 #include <config.h>
 #include <bits/errno.h>
 #include "../scheduler/scheduler.h"
-#include "../scheduler/devices.h"
 
 int task_create(task_t* tasks, size_t num_tasks) {
     // Sanity checks.
