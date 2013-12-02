@@ -46,35 +46,45 @@ bool time_equal(uint32_t oscr_val, uint32_t oscr_match) {
  */
 /**
  * @brief: Interrupt for sleep() calls.
+ * 
+ * See sleep() syscall for more details about sleeping algorithm.
+ * 
+ * Algorithm:
+ *   Assumes: At each interrupt, at least one task in the sleeper list
+ *            needs to either wake up or have their overflow count
+ *            decremented.
+ *   Steps:
+ *   1. For each sleeping task in the sleeper list, check if their 
+ *      overflow count needs to be decremented (Step 2a) or if they
+ *      should be woken up. (Step 2b)
+ *   2a. If the overflow count should be decremented, decrement the
+ *       count and check if the match register needs to be updated.
+ *   2b. If the task needs to be woken up, add them to the runqueue and
+ *       check if we need to explicitly dispatch them. (I.e When the
+ *       task has a higher prio than the current task.)
+ *   3. Now search for the nearest sleeping task that needs to be
+ *      serviced in the future and set the match register to trigger
+ *      the sleep interrupt again at that time.
  */
 void handle_sleep() {
     uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
     bool have_to_dispatch = FALSE;
     
-    // Update our current sleep match to default.
-    curr_sleep_match = UINT32_MAX;
-    
-    // Update sleepers and check if we need to wake any sleeping tasks.
+    // Update overflows and check if we need to wake any sleeping tasks.
     uint32_t i;
     for (i = 0; i < MAX_SLEEPERS; i++) {
         // Ignore empty entries
         if (sleepers[i].task == 0) continue;
         
-        // Update sleepers
+        // Handle overflow cases
         if (sleepers[i].overflows_needed > 0
             && time_equal(curr_oscr, sleepers[i].start_oscr)) {
-            // Handle overflow cases
+            
             sleepers[i].overflows_needed--;
-
-            // If no more overflows are needed, check if we need to
-            // wake up the task soon.
-            if (sleepers[i].overflows_needed == 0
-                && sleepers[i].wake_match < curr_sleep_match) {
-                curr_sleep_match = sleepers[i].wake_match;
-            }
+        
+        // Handle waking task cases.
         } else if (sleepers[i].overflows_needed == 0
                    && time_equal(curr_oscr, sleepers[i].wake_match)) {
-            // Handle waking task cases.
             
             // Update runqueue and check if we need to dispatch.
             tcb_t *wake_task = sleepers[i].task;
@@ -83,16 +93,30 @@ void handle_sleep() {
             
             // Remove sleeper from the list.
             sleepers_remove(i);
-        } else {
-            // Handle remaining cases. (I.e. see if there are any lower
-            // OSCR matches in the sleeper list.)
-            if (sleepers[i].overflows_needed == 0
-                && sleepers[i].wake_match < curr_sleep_match) {
-                curr_sleep_match = sleepers[i].wake_match;
-            } else if (sleepers[i].overflows_needed > 0
-                       && sleepers[i].start_oscr < curr_sleep_match) {
-                curr_sleep_match = sleepers[i].start_oscr;
-            }
+        }
+    }
+    
+    // Now search for the next task to be serviced. Technically this can
+    // be integrated in the above loop but we separate it for more
+    // readability and maintainability. (This algo is convoluted enough
+    // as it is.)
+    curr_sleep_match = UINT32_MAX;
+    
+    for (i = 0; i < MAX_SLEEPERS; i++) {
+        // Ignore empty entries
+        if (sleepers[i].task == 0) continue;
+        
+        // For tasks with no overflows we check wake_match.
+        if (sleepers[i].overflows_needed == 0
+            && sleepers[i].wake_match < curr_sleep_match) {
+            
+            curr_sleep_match = sleepers[i].wake_match;
+        
+        // For tasks with overflows we check start_oscr.
+        } else if (sleepers[i].overflows_needed > 0
+                   && sleepers[i].start_oscr < curr_sleep_match) {
+            
+            curr_sleep_match = sleepers[i].start_oscr;
         }
     }
     
