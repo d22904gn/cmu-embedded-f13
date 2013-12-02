@@ -15,7 +15,7 @@
 // Defines masks to check which interrupt was asserted.
 #define SLEEP_TIMER     (1 << INT_OSTMR_0)
 #define TIME_TIMER      (1 << INT_OSTMR_1)
-#define DEVICES_TIMER    (1 << INT_OSTMR_2)
+#define DEVICES_TIMER   (1 << INT_OSTMR_2)
 
 // Device handlers
 void handle_time();

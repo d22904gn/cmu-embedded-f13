@@ -38,7 +38,7 @@
 #define OSTMR_FREQ            3250000      /* Oscillator frequency in hz */
 
 /* Milliseconds per overflow */
-#define MS_PER_OVERFLOW       ((UINT_MAX / OSTMR_FREQ) * 1000u)
+#define MS_PER_OVERFLOW       ((UINT32_MAX / OSTMR_FREQ) * 1000u)
 
 #ifndef ASSEMBLER
 

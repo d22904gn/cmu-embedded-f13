@@ -45,10 +45,7 @@ bool time_equal(uint32_t oscr_val, uint32_t oscr_match) {
  * Timer interrupt handlers
  */
 /**
- * Interrupt for sleep() calls.
- * 
- * Sleep() algorithm:
- * XXX
+ * @brief: Interrupt for sleep() calls.
  */
 void handle_sleep() {
     uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
@@ -63,21 +60,22 @@ void handle_sleep() {
         // Ignore empty entries
         if (sleepers[i].task == 0) continue;
         
-        // Handle overflow cases
+        // Update sleepers
         if (sleepers[i].overflows_needed > 0
             && time_equal(curr_oscr, sleepers[i].start_oscr)) {
+            // Handle overflow cases
             sleepers[i].overflows_needed--;
-            
+
             // If no more overflows are needed, check if we need to
             // wake up the task soon.
             if (sleepers[i].overflows_needed == 0
                 && sleepers[i].wake_match < curr_sleep_match) {
                 curr_sleep_match = sleepers[i].wake_match;
             }
-        
-        // Handle wake cases.
         } else if (sleepers[i].overflows_needed == 0
                    && time_equal(curr_oscr, sleepers[i].wake_match)) {
+            // Handle waking task cases.
+            
             // Update runqueue and check if we need to dispatch.
             tcb_t *wake_task = sleepers[i].task;
             runqueue_add(wake_task, wake_task->curr_prio);
@@ -85,12 +83,15 @@ void handle_sleep() {
             
             // Remove sleeper from the list.
             sleepers_remove(i);
-        
-        // Handle remaining cases.
         } else {
-            if (sleepers[i].overflows_needed == 0 &&
-                sleepers[i].wake_match < curr_sleep_match) {
+            // Handle remaining cases. (I.e. see if there are any lower
+            // OSCR matches in the sleeper list.)
+            if (sleepers[i].overflows_needed == 0
+                && sleepers[i].wake_match < curr_sleep_match) {
                 curr_sleep_match = sleepers[i].wake_match;
+            } else if (sleepers[i].overflows_needed > 0
+                       && sleepers[i].start_oscr < curr_sleep_match) {
+                curr_sleep_match = sleepers[i].start_oscr;
             }
         }
     }
@@ -115,14 +116,15 @@ void handle_time() {
 
 // Handle device interrupts.
 void handle_devices() {    
-    // Save current time to reduce skew.
-    unsigned long curr_time = time();
+    // Save current OSCR to reduce skew.
+    uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
     
     // Wake devices.
-    dev_update(curr_time);
+    dev_update(time());
     
     // Update our device match register.
-    reg_write(OSTMR_OSMR_ADDR(2), get_ticks(curr_time + DEV_INT_PERIOD));
+    reg_write(OSTMR_OSMR_ADDR(2),
+        curr_oscr + get_ticks(DEV_INT_PERIOD));
     
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);

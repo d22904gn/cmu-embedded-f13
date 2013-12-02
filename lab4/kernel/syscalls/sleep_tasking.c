@@ -45,7 +45,8 @@ void sleepers_add(tcb_t *task,
                   uint32_t overflows_needed,
                   uint32_t remainder_ticks) {
     // Record down OSCR value at which the sleeper was added.
-    sleepers[task->native_prio].start_oscr = reg_read(OSTMR_OSCR_ADDR);
+    uint32_t start_oscr = reg_read(OSTMR_OSCR_ADDR);
+    sleepers[task->native_prio].start_oscr = start_oscr;
     
     // Other vars
     sleepers[task->native_prio].overflows_needed = overflows_needed;
@@ -59,8 +60,17 @@ void sleepers_add(tcb_t *task,
     /* Check if we need to update OSMR. (I.e. when this task sleeps less
      * than other sleeping tasks.) */
     if (overflows_needed == 0 && wake_match < curr_sleep_match) {
+        // Handle scenario where we don't need to count overflows.
+        // Sufficient to check if this task will wake up earlier than
+        // other sleeping tasks.
         curr_sleep_match = wake_match;
         reg_write(OSTMR_OSMR_ADDR(0), wake_match);
+    } else if (overflows_needed > 0 && start_oscr < curr_sleep_match) {
+        // Handle scenario where we need to count overflows.
+        // This check is for the situation where we don't have any
+        // other sleeping tasks. So we force an OSMR update.
+        curr_sleep_match = start_oscr;
+        reg_write(OSTMR_OSMR_ADDR(0), start_oscr);
     }
 }
 
