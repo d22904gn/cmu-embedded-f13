@@ -1,7 +1,7 @@
 /**
  * @file    timer_vars.h
  *
- * @brief   Timing-related variable declarations
+ * @brief   Timing-related declarations
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>

@@ -29,16 +29,16 @@ volatile uint32_t clock_overflows = 0;
  */
 // Maximum miliseconds skew a timer can have for sleeping
 // E.g. due to jitter from interrupts, etc.
-#define OSCR_MS_ERROR 2
+#define OSCR_MS_ERROR 45
 
 // Returns true if the time difference between oscr_match and oscr_val
 // is less than OSCR_MS_ERROR milliseconds.
 bool time_equal(uint32_t oscr_val, uint32_t oscr_match) {
     // Account for sign error.
-    uint32_t time_diff = oscr_val - oscr_match;
-    if (oscr_val < oscr_match) time_diff = oscr_match - oscr_val;
+    uint32_t oscr_diff = oscr_val - oscr_match;
+    if (oscr_val < oscr_match) oscr_diff = oscr_match - oscr_val;
     
-    return (get_ms(time_diff) <= OSCR_MS_ERROR);
+    return (oscr_diff <= get_ticks(OSCR_MS_ERROR));
 }
 
 /*
@@ -67,6 +67,9 @@ bool time_equal(uint32_t oscr_val, uint32_t oscr_match) {
  *      the sleep interrupt again at that time.
  */
 void handle_sleep() {
+    // Signal interrupt handled.
+    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M0);
+    
     uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
     bool have_to_dispatch = FALSE;
     
@@ -123,33 +126,29 @@ void handle_sleep() {
     // Update OSMR
     reg_write(OSTMR_OSMR_ADDR(0), curr_sleep_match);
     
-    // Signal interrupt handled.
-    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M0);
-    
     // Context switch tasks if we have to.
     if (have_to_dispatch) dispatch_save();
 }
 
 // Interrupt for time() calls.
 void handle_time() {
-    clock_overflows++;
-    
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M1);
+    
+    clock_overflows++;
 }
 
 // Handle device interrupts.
-void handle_devices() {    
-    // Save current OSCR to reduce skew.
-    uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
+void handle_devices() {
+    // Signal interrupt handled.
+    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);
     
-    // Wake devices.
-    dev_update(time());
+    uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
     
     // Update our device match register.
     reg_write(OSTMR_OSMR_ADDR(2),
         curr_oscr + get_ticks(DEV_INT_PERIOD));
     
-    // Signal interrupt handled.
-    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);
+    // Wake devices.
+    dev_update(time());
 }

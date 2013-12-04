@@ -23,17 +23,15 @@ void handle_sleep();
 void handle_devices();
 
 void irq_handler_c() {
-    // Check if timer generated the interrupt
+    //puts("I");
     int int_source = reg_read(INT_ICMR_ADDR) & reg_read(INT_ICPR_ADDR);
-    if (!(int_source & 
-          (SLEEP_TIMER | TIME_TIMER | DEVICES_TIMER))) return;
-    
-    // Process time() interrupt.
-    if (int_source & TIME_TIMER) handle_time();
     
     // Process sleep() interrupt.
     if (int_source & SLEEP_TIMER) handle_sleep();
     
     // Process device interrupt.
     if (int_source & DEVICES_TIMER) handle_devices();
+    
+    // Process time() interrupt.
+    if (int_source & TIME_TIMER) handle_time();
 }

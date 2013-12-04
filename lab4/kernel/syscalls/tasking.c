@@ -13,6 +13,9 @@
 #include <task.h>
 #include <config.h>
 #include <bits/errno.h>
+#include <arm/reg.h>
+#include <arm/timer.h>
+#include <arm/interrupt.h>
 #include "../scheduler/scheduler.h"
 
 int task_create(task_t* tasks, size_t num_tasks) {
@@ -36,6 +39,10 @@ int task_create(task_t* tasks, size_t num_tasks) {
     // Init TCBs
     if (!allocate_tasks(sorted_tasks, num_tasks)) return -EFAULT;
     
+    // Start device interrupt timer.
+    reg_write(OSTMR_OSMR_ADDR(2),
+        reg_read(OSTMR_OSCR_ADDR) + get_ticks(DEV_INT_PERIOD));
+    
     // Start tasks
     dispatch_nosave();
     
@@ -43,7 +50,14 @@ int task_create(task_t* tasks, size_t num_tasks) {
 }
 
 int event_wait(unsigned int dev_num) {
+    // Sanity checks
     if (dev_num >= NUM_DEVICES) return -EINVAL;
+    
+    // Prevent tasks from waiting if they have a mutex.
+    if (curr_tcb->holds_lock) return -EHOLDSLOCK;
+    
+    // Restore device priority to its native priority.
+    curr_tcb->curr_prio = curr_tcb->native_prio;
     
     // Put calling task on the device queue.
     dev_enqueue(curr_tcb, dev_num);

@@ -32,14 +32,14 @@ void dev_init(unsigned long millis) {
 /**
  * @brief Adds a task to the device sleep queue.
  */
-void dev_enqueue(tcb_t *task_ptr, unsigned int dev_num) {
+void dev_enqueue(tcb_t *task, unsigned int dev_num) {
     // Sanity check
     if (dev_num >= NUM_DEVICES ||
         tcbqueue_full(&(devices[dev_num].sleep_queue))) return;
     
     // No naughty business with the queue when we're adding to it!
     INT_ATOMIC_START;
-    tcbqueue_enqueue(&(devices[dev_num].sleep_queue), task_ptr);
+    tcbqueue_enqueue(&(devices[dev_num].sleep_queue), task);
     INT_ATOMIC_END;
 }
 
@@ -69,8 +69,8 @@ void dev_update(unsigned long millis) {
                 tcb_t *next_tcb = 
                     tcbqueue_dequeue(&(devices[i].sleep_queue));
                 
-                /* Check if we need to context switch after this
-                 * interrupt. */
+                // Check if we need to context switch after this
+                // interrupt.
                 if (is_higher_prio(next_tcb)) need_to_switch = TRUE;
                 
                 runqueue_add(next_tcb, next_tcb->native_prio);

@@ -44,7 +44,7 @@ void idle_init() {
     system_tcb[IDLE_PRIO].native_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].curr_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].holds_lock = FALSE;
-    system_tcb[IDLE_PRIO].prio_src = 0;
+    system_tcb[IDLE_PRIO].hlp_queue_spot = NULL;
     
     system_tcb[IDLE_PRIO].context.r4 = (uint32_t) idle;
     system_tcb[IDLE_PRIO].context.r5 = 0;
@@ -52,9 +52,6 @@ void idle_init() {
     system_tcb[IDLE_PRIO].context.sp = 
             (uint32_t) GET_KSTACK_START(system_tcb[IDLE_PRIO]);
     system_tcb[IDLE_PRIO].context.lr = 0;
-    
-    // Add the idle TCB to the runqueue.
-    runqueue_add(&system_tcb[IDLE_PRIO], IDLE_PRIO);
     
     // Init the current TCB to the idle TCB
     curr_tcb = &system_tcb[IDLE_PRIO];
@@ -166,11 +163,11 @@ bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
             return FALSE;
         }
         
-        // Setup prioities and locks
+        // Setup prioties and locks
         system_tcb[prio_idx].native_prio = prio_idx;
         system_tcb[prio_idx].curr_prio = prio_idx;
         system_tcb[prio_idx].holds_lock = FALSE;
-        system_tcb[prio_idx].prio_src = 0;
+        system_tcb[prio_idx].hlp_queue_spot = NULL;
         
         // Setup task stack for launch_task
         // r4 -> user entry point.

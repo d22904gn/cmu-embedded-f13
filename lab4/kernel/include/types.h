@@ -18,6 +18,8 @@
 
 #define offsetof(type, member)  ((size_t)(&(((type *)0)->member)))
 
+#define NULL 0
+
 typedef enum bool
 {
     FALSE = 0,

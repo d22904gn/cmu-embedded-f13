@@ -20,7 +20,7 @@
 // Sleeper list declaration
 sleeper_t sleepers[MAX_SLEEPERS];
 
-// Tracks next OSCR val which will cause a sleep interrupt.
+// Tracks next OSMR match for the sleep interrupt.
 uint32_t curr_sleep_match = UINT32_MAX;
 
 // Initialization / Reset

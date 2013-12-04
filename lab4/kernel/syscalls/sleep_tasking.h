@@ -37,7 +37,7 @@ typedef struct sleeper sleeper_t;
  */ 
 extern sleeper_t sleepers[MAX_SLEEPERS];
 
-// Tracks next OSCR val which will cause a sleep interrupt.
+// Tracks next OSMR match for the sleep interrupt.
 extern uint32_t curr_sleep_match;
 
 // Sleeper list manipulation functions

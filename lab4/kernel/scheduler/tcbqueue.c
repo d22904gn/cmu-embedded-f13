@@ -1,7 +1,9 @@
 /**
  * @file    tcbqueue.c
  *
- * @brief   TCB queue implementation
+ * @brief   TCB queue implementation. This is a FIFO queue for TCBs.
+ *          This can be used for implementing stuff like sleep queues,
+ *          etc.
  *
  * @authors Wee Loong Kuan <wkuan@andrew.cmu.edu>
  *          Chin Yang Oh <chinyano@andrew.cmu.edu>

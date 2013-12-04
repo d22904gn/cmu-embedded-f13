@@ -13,7 +13,11 @@
 #include <config.h>
 #include <types.h>
 #include <arm/interrupt.h>
+#include <inline.h>
 #include "scheduler.h"
+
+// Readibility definitions
+#define NONE 0
 
 // Allocate space for mutexes
 mutex_t mutexes[OS_NUM_MUTEX];
@@ -21,13 +25,34 @@ mutex_t mutexes[OS_NUM_MUTEX];
 // Track available mutexes
 static int next_mutex = 0;
 
+// HLP: Elevate task priority to comply with HLP
+INLINE void elevate_prio(tcb_t *task) {
+    /* Implement HLP by elevating current task to highest possible
+     * priority while it has the mutex. Note that if this task goes
+     * to sleep and another task acquires another mutex while it is
+     * sleeping, then it will have to wait until that other task 
+     * finishes/sleeps before this task can run again. (Since that
+     * other task will also be elevated to the highest priority as 
+     * well.)
+     */
+    
+    // No need to do anything if curr task is already at the highest
+    // priority.
+    if (task->curr_prio == 0 || task->native_prio == 0) return;
+    
+    // If curr task is not the highest prio, then highest prio task
+    // must be sleeping/waiting on a device or mutex. So it is safe 
+    // to simply set curr task's priority to the highest priority.
+    task->curr_prio = 0;
+}
+
+
 // Initialize mutexes
 void mutex_init() {
     uint32_t i;
     
     for (i = 0; i < OS_NUM_MUTEX; i++) {
-        mutexes[i].is_available = TRUE;
-        mutexes[i].curr_owner = 0;
+        mutexes[i].curr_owner = NONE;
         tcbqueue_init(&(mutexes[i].sleep_queue));
     }
 }
@@ -40,12 +65,13 @@ int mutex_create() {
 }
 
 // Tries to let current task lock; if not, we put it in the sleep queue.
+// Note that the sleep queue is a FIFO queue, not a priority queue.
 int mutex_lock(int mutex_num) {
     // Sanity checks
     if (mutex_num >= next_mutex) return -EINVAL;
     
     // If mutex is unavailable, put the task on a sleep queue.
-    if (!mutexes[mutex_num].is_available) {
+    if (mutexes[mutex_num].curr_owner != NONE) {
         // Make sure task does not acquire same mutex twice.
         if (mutexes[mutex_num].curr_owner->native_prio ==
             curr_tcb->native_prio) return -EDEADLOCK;
@@ -56,9 +82,12 @@ int mutex_lock(int mutex_num) {
         // Send the task to sleep.
         dispatch_sleep();
     } else {
-        mutexes[mutex_num].is_available = FALSE;
+        // Assign mutex to task.
         mutexes[mutex_num].curr_owner = curr_tcb;
         curr_tcb->holds_lock = TRUE;
+        
+        // Elevate priority for HLP.
+        elevate_prio(curr_tcb);
     }
     
     return 0;
@@ -67,12 +96,14 @@ int mutex_lock(int mutex_num) {
 // Unlocks the mutex for the current task.
 int mutex_unlock(int mutex_num) {
     // Sanity checks
-    if (mutex_num >= next_mutex ||
-        mutexes[mutex_num].is_available) return -EINVAL;
+    if (mutex_num >= next_mutex
+        || mutexes[mutex_num].curr_owner == NONE) return -EINVAL;
     if (mutexes[mutex_num].curr_owner->native_prio !=
         curr_tcb->native_prio) return -EPERM;
     
-    // Mark the current owner as not holding a mutex.
+    // Restore curr owner's old priority and unset holds_lock.
+    mutexes[mutex_num].curr_owner->curr_prio = 
+        mutexes[mutex_num].curr_owner->native_prio;
     mutexes[mutex_num].curr_owner->holds_lock = FALSE;
     
     // Check if other tasks want the mutex.
@@ -82,7 +113,8 @@ int mutex_unlock(int mutex_num) {
         
         // Give next task the mutex.
         mutexes[mutex_num].curr_owner = next_tcb;
-        mutexes[mutex_num].curr_owner->holds_lock = TRUE;
+        next_tcb->holds_lock = TRUE;
+        elevate_prio(next_tcb);
         
         INT_ATOMIC_START;
         runqueue_add(next_tcb, next_tcb->curr_prio);
@@ -93,8 +125,7 @@ int mutex_unlock(int mutex_num) {
         if (is_higher_prio(next_tcb)) dispatch_save();
     } else {
         // Safe to release mutex if no other tasks want it currently.
-        mutexes[mutex_num].curr_owner = 0;
-        mutexes[mutex_num].is_available = TRUE;
+        mutexes[mutex_num].curr_owner = NONE;
     }
     
     return 0;

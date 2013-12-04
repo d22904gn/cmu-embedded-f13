@@ -19,7 +19,6 @@
 #define MUTEX_H
 
 struct mutex {
-    bool        is_available;
     tcb_t       *curr_owner;
     tcb_queue_t sleep_queue;
 };

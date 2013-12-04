@@ -64,7 +64,7 @@ void runqueue_init() {
     group_run_bits = 0;
     
     for (i = 0; i < OS_MAX_TASKS; i++) {
-        run_list[i] = 0;
+        run_list[i] = NULL;
     }
 }
 
@@ -77,11 +77,21 @@ void runqueue_init() {
  * empty. This function needs to be externally synchronized.
  */
 void runqueue_add(tcb_t* tcb, uint8_t prio) {
-    // Sanity check
-    if (prio > OS_MAX_TASKS - 1 || run_list[prio]) return;
+    // Sanity check.
+    if (prio > OS_MAX_TASKS - 1) return;
     
-    // Add task to queue
-    run_list[prio] = tcb;
+    // Add task to queue. If another task of the same priority already
+    // exists in the runqueue, we add it to its HLP queue.
+    if (run_list[prio] != NULL) {
+        // Loop through the chain until we find an empty spot.
+        tcb_t *queue = run_list[prio];
+        while (queue->hlp_queue_spot != NULL)
+            queue = queue->hlp_queue_spot;
+        
+        queue->hlp_queue_spot = tcb;
+    } else {
+        run_list[prio] = tcb;
+    }
     
     // Set appropriate bits in run_bits and group_run_bits
     uint8_t group = prio >> 3;
@@ -99,20 +109,25 @@ void runqueue_add(tcb_t* tcb, uint8_t prio) {
  */
 tcb_t* runqueue_remove(uint8_t prio) {
     // Sanity check
-    if (prio > OS_MAX_TASKS - 1 || !run_list[prio]) return 0;
-    
-    // If we are removing the idle task, don't actually remove it.
-    if (prio == IDLE_PRIO) return run_list[IDLE_PRIO];
+    if (prio > OS_MAX_TASKS - 1 || !run_list[prio]) return NULL;
     
     // Remove TCB from run list.
     tcb_t *item = run_list[prio];
-    run_list[prio] = 0;
     
-    // Clear run queue data assoc. with TCB.
-    uint8_t group = prio >> 3;
-    uint8_t run_bit_offset = prio & 0x07;
-    run_bits[group] &= ~(1 << run_bit_offset);
-    if (run_bits[group] == 0) group_run_bits &= ~(1 << group);
+    // If TCB has a non-empty HLP queue, push the next TCB in the queue
+    // up. Else zero out the runqueue position for the given priority.
+    if (item->hlp_queue_spot != NULL) {
+        run_list[prio] = item->hlp_queue_spot;
+        item->hlp_queue_spot = NULL;
+    } else {
+        run_list[prio] = NULL;
+        
+        // Clear run queue data associated with TCB.
+        uint8_t group = prio >> 3;
+        uint8_t run_bit_offset = prio & 0x07;
+        run_bits[group] &= ~(1 << run_bit_offset);
+        if (run_bits[group] == 0) group_run_bits &= ~(1 << group);
+    }
     
     return item;
 }
