@@ -13,7 +13,7 @@
 #include <arm/reg.h>
 #include <arm/timer.h>
 #include "../scheduler/scheduler.h"
-#include "../interrupts/timer_vars.h"
+#include "../interrupts/timers.h"
 #include "sleep_tasking.h"
 
 /**

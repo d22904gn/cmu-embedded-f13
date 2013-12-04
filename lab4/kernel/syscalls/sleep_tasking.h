@@ -21,6 +21,8 @@
 // Sleeper structures
 struct sleeper {
     uint32_t    start_oscr;
+    uint32_t    prev_clock_oflow;
+    
     uint32_t    overflows_needed;
     uint32_t    wake_match;
     tcb_t       *task;
@@ -38,7 +40,10 @@ typedef struct sleeper sleeper_t;
 extern sleeper_t sleepers[MAX_SLEEPERS];
 
 // Tracks next OSMR match for the sleep interrupt.
-extern uint32_t curr_sleep_match;
+extern volatile uint32_t curr_sleep_match;
+
+// Tracks number of sleepers on the sleeper list.
+extern volatile uint32_t sleeper_count;
 
 // Sleeper list manipulation functions
 void sleepers_init();

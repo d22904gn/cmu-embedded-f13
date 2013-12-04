@@ -14,32 +14,17 @@
 #include <bits/swi.h>
 #include <types.h>
 #include <config.h>
+#include <inline.h>
 #include "../syscalls/syscalls.h"
 #include "../syscalls/sleep_tasking.h"
 #include "../scheduler/scheduler.h"
+#include "timers.h"
 
 /*
  * Globals
  */
 // Tracks # of clock overflows since kernel init.
 volatile uint32_t clock_overflows = 0;
-
-/*
- * Helper functions
- */
-// Maximum miliseconds skew a timer can have for sleeping
-// E.g. due to jitter from interrupts, etc.
-#define OSCR_MS_ERROR 45
-
-// Returns true if the time difference between oscr_match and oscr_val
-// is less than OSCR_MS_ERROR milliseconds.
-bool time_equal(uint32_t oscr_val, uint32_t oscr_match) {
-    // Account for sign error.
-    uint32_t oscr_diff = oscr_val - oscr_match;
-    if (oscr_val < oscr_match) oscr_diff = oscr_match - oscr_val;
-    
-    return (oscr_diff <= get_ticks(OSCR_MS_ERROR));
-}
 
 /*
  * Timer interrupt handlers
@@ -81,13 +66,20 @@ void handle_sleep() {
         
         // Handle overflow cases
         if (sleepers[i].overflows_needed > 0
-            && time_equal(curr_oscr, sleepers[i].start_oscr)) {
+            && clock_overflows != sleepers[i].prev_clock_oflow
+            && sleepers[i].start_oscr <= curr_oscr) {
             
-            sleepers[i].overflows_needed--;
+            // Decrement overflows needed by # of overflows since last
+            // decrement.
+            sleepers[i].overflows_needed -=
+                (clock_overflows - sleepers[i].prev_clock_oflow);
+            
+            // Update our previously seen overflow counter.
+            sleepers[i].prev_clock_oflow = clock_overflows;
         
         // Handle waking task cases.
         } else if (sleepers[i].overflows_needed == 0
-                   && time_equal(curr_oscr, sleepers[i].wake_match)) {
+                   && sleepers[i].wake_match <= curr_oscr) {
             
             // Update runqueue and check if we need to dispatch.
             tcb_t *wake_task = sleepers[i].task;
@@ -105,26 +97,27 @@ void handle_sleep() {
     // as it is.)
     curr_sleep_match = UINT32_MAX;
     
-    for (i = 0; i < MAX_SLEEPERS; i++) {
-        // Ignore empty entries
-        if (sleepers[i].task == 0) continue;
-        
-        // For tasks with no overflows we check wake_match.
-        if (sleepers[i].overflows_needed == 0
-            && sleepers[i].wake_match < curr_sleep_match) {
+    if (sleeper_count > 0) {
+        for (i = 0; i < MAX_SLEEPERS; i++) {
+            // Ignore empty entries
+            if (sleepers[i].task == 0) continue;
             
-            curr_sleep_match = sleepers[i].wake_match;
-        
-        // For tasks with overflows we check start_oscr.
-        } else if (sleepers[i].overflows_needed > 0
-                   && sleepers[i].start_oscr < curr_sleep_match) {
+            // For tasks with no overflows we check wake_match.
+            if (sleepers[i].overflows_needed == 0
+                && sleepers[i].wake_match < curr_sleep_match) {
+                
+                curr_sleep_match = sleepers[i].wake_match;
             
-            curr_sleep_match = sleepers[i].start_oscr;
+            // For tasks with overflows we check start_oscr.
+            } else if (sleepers[i].overflows_needed > 0
+                       && sleepers[i].start_oscr < curr_sleep_match) {
+                
+                curr_sleep_match = sleepers[i].start_oscr;
+            }
         }
+        
+        reg_write(OSTMR_OSMR_ADDR(0), curr_sleep_match);
     }
-    
-    // Update OSMR
-    reg_write(OSTMR_OSMR_ADDR(0), curr_sleep_match);
     
     // Context switch tasks if we have to.
     if (have_to_dispatch) dispatch_save();
@@ -143,12 +136,28 @@ void handle_devices() {
     // Signal interrupt handled.
     reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M2);
     
-    uint32_t curr_oscr = reg_read(OSTMR_OSCR_ADDR);
-    
     // Update our device match register.
     reg_write(OSTMR_OSMR_ADDR(2),
-        curr_oscr + get_ticks(DEV_INT_PERIOD));
+        reg_read(OSTMR_OSCR_ADDR) + get_ticks(DEV_INT_PERIOD));
     
     // Wake devices.
     dev_update(time());
+}
+
+// Watchdog for devices and sleep interrupts, since wake times may be
+// missed due to jitter.
+void watchdog_woof() {
+    // Update watchdog registers
+    reg_set(OSTMR_OSSR_ADDR, OSTMR_OSSR_M3);
+    reg_write(OSTMR_OSMR_ADDR(3),
+        reg_read(OSTMR_OSCR_ADDR) + get_ticks(WATCHDOG_PERIOD));
+    
+    // Start patrolling.
+    uint32_t oscr = reg_read(OSTMR_OSCR_ADDR);
+    
+    // Sleep
+    if (sleeper_count > 0 && curr_sleep_match <= oscr) handle_sleep();
+    
+    // Devices
+    if (reg_read(OSTMR_OSMR_ADDR(2)) <= oscr) handle_devices();
 }

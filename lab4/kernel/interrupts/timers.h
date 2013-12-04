@@ -1,5 +1,5 @@
 /**
- * @file    timer_vars.h
+ * @file    timers.h
  *
  * @brief   Timing-related declarations
  *
@@ -8,6 +8,9 @@
  *          Jennifer Lee <jcl1@andrew.cmu.edu>
  * @date    18 Nov 2013
  */
+
+// Watchdog period (In milliseconds)
+#define WATCHDOG_PERIOD 250
 
 // Tracks # of clock overflows since kernel init.
 extern volatile uint32_t clock_overflows;

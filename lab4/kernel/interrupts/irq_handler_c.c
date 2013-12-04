@@ -16,14 +16,15 @@
 #define SLEEP_TIMER     (1 << INT_OSTMR_0)
 #define TIME_TIMER      (1 << INT_OSTMR_1)
 #define DEVICES_TIMER   (1 << INT_OSTMR_2)
+#define WATCHDOG        (1 << INT_OSTMR_3)
 
-// Device handlers
+// Specific interrupt handlers
 void handle_time();
 void handle_sleep();
 void handle_devices();
+void watchdog_woof();
 
 void irq_handler_c() {
-    //puts("I");
     int int_source = reg_read(INT_ICMR_ADDR) & reg_read(INT_ICPR_ADDR);
     
     // Process sleep() interrupt.
@@ -34,4 +35,7 @@ void irq_handler_c() {
     
     // Process time() interrupt.
     if (int_source & TIME_TIMER) handle_time();
+    
+    // Process watchdog interrupt
+    if (int_source & WATCHDOG) watchdog_woof();
 }

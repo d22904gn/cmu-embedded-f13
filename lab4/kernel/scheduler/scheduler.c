@@ -137,7 +137,7 @@ bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     // Initial sanity checks
     if (num_tasks > OS_AVAIL_TASKS) return FALSE;
     
-    // No naughty business with the runqueue when we're adding to it!
+    // No naughty business with shared structures!
     INT_ATOMIC_START;
     
     // Re-init scheduler system
