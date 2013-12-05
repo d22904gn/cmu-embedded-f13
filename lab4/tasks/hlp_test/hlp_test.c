@@ -44,7 +44,7 @@ void fun2(void* str) {
     while (1) {
 		putchar((int)str);
         
-        if (event_wait(2) < 0) panic("Dev 2 failed");
+        if (event_wait(1) < 0) panic("Dev 1 failed");
 	}
 }
 
@@ -81,7 +81,7 @@ int main(int argc __attribute((unused)),
 	tasks[1].stack_pos = (void*)0xa1000000;
 	tasks[1].C = 1;
     tasks[1].B = 0;
-	tasks[1].T = PERIOD_DEV2;
+	tasks[1].T = PERIOD_DEV1;
     tasks[2].lambda = fun3;
 	tasks[2].data = (void*)'<';
 	tasks[2].stack_pos = (void*)0xa1500000;
