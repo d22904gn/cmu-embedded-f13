@@ -33,6 +33,7 @@ int task_create(task_t* tasks, size_t num_tasks) {
         sorted_tasks[i] = tasks + i;
     }
     
+    INT_ATOMIC_START;
     // Perform UB test.
     if (!assign_schedule(sorted_tasks, num_tasks)) return -EFAULT;
     
@@ -45,6 +46,7 @@ int task_create(task_t* tasks, size_t num_tasks) {
     
     // Start tasks
     dispatch_nosave();
+    INT_ATOMIC_END;
     
     return 0;
 }
@@ -52,6 +54,9 @@ int task_create(task_t* tasks, size_t num_tasks) {
 int event_wait(unsigned int dev_num) {
     // Sanity checks
     if (dev_num >= NUM_DEVICES) return -EINVAL;
+    
+    // Prevent curr_tcb from being modified by device_update.
+    INT_ATOMIC_START;
     
     // Prevent tasks from waiting if they have a mutex.
     if (curr_tcb->holds_lock) return -EHOLDSLOCK;
@@ -64,6 +69,8 @@ int event_wait(unsigned int dev_num) {
     
     // Sleep current task.
     dispatch_sleep();
+    
+    INT_ATOMIC_END;
     
     return 0;
 }

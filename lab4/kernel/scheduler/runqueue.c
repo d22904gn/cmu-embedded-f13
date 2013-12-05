@@ -81,15 +81,14 @@ void runqueue_add(tcb_t* tcb, uint8_t prio) {
     if (prio > OS_MAX_TASKS - 1) return;
     
     // Add task to queue. If another task of the same priority already
-    // exists in the runqueue, we add it to its HLP queue. See task.h
-    // for HLP queue notes.
+    // exists in the runqueue, we add it to its fifo queue.
     if (run_list[prio] != NULL) {
-        // Loop through the chain until we find an empty spot.
+        // Loop through the queue until we find an empty spot.
         tcb_t *queue = run_list[prio];
-        while (queue->hlp_queue_spot != NULL)
-            queue = queue->hlp_queue_spot;
+        while (queue->fifo_queue_spot != NULL)
+            queue = queue->fifo_queue_spot;
         
-        queue->hlp_queue_spot = tcb;
+        queue->fifo_queue_spot = tcb;
     } else {
         run_list[prio] = tcb;
     }
@@ -117,9 +116,9 @@ tcb_t* runqueue_remove(uint8_t prio) {
     
     // If TCB has a non-empty HLP queue, push the next TCB in the queue
     // up. Else zero out the runqueue position for the given priority.
-    if (item->hlp_queue_spot != NULL) {
-        run_list[prio] = item->hlp_queue_spot;
-        item->hlp_queue_spot = NULL;
+    if (item->fifo_queue_spot != NULL) {
+        run_list[prio] = item->fifo_queue_spot;
+        item->fifo_queue_spot = NULL;
     } else {
         run_list[prio] = NULL;
         

@@ -25,6 +25,9 @@ mutex_t mutexes[OS_NUM_MUTEX];
 // Track available mutexes
 static int next_mutex = 0;
 
+// HLP Emulation. Meh.
+static bool locking_allowed = TRUE;
+
 // HLP: Elevate task priority to comply with HLP
 INLINE void elevate_prio(tcb_t *task) {
     /* Implement HLP by elevating current task to highest possible
@@ -49,6 +52,8 @@ INLINE void elevate_prio(tcb_t *task) {
 
 // Initialize mutexes
 void mutex_init() {
+    locking_allowed = TRUE;
+    
     uint32_t i;
     
     for (i = 0; i < OS_NUM_MUTEX; i++) {
@@ -70,8 +75,21 @@ int mutex_lock(int mutex_num) {
     // Sanity checks
     if (mutex_num >= next_mutex) return -EINVAL;
     
+    // No mucking around with curr_tcb while we're accesing it!
+    INT_ATOMIC_START;
+    
+    // Due to HLP, do not allow tasks to acquire mutexes when any mutex
+    // (not necessarily the current task's desired mutex) is in use.
     // If mutex is unavailable, put the task on a sleep queue.
-    if (mutexes[mutex_num].curr_owner != NONE) {
+    if (locking_allowed && mutexes[mutex_num].curr_owner == NONE) {
+        // Assign mutex to task.
+        mutexes[mutex_num].curr_owner = curr_tcb;
+        curr_tcb->holds_lock = TRUE;
+        
+        // Elevate priority and disable lockings for HLP.
+        elevate_prio(curr_tcb);
+        locking_allowed = FALSE;
+    } else {
         // Make sure task does not acquire same mutex twice.
         if (mutexes[mutex_num].curr_owner->native_prio ==
             curr_tcb->native_prio) return -EDEADLOCK;
@@ -81,14 +99,9 @@ int mutex_lock(int mutex_num) {
         
         // Send the task to sleep.
         dispatch_sleep();
-    } else {
-        // Assign mutex to task.
-        mutexes[mutex_num].curr_owner = curr_tcb;
-        curr_tcb->holds_lock = TRUE;
-        
-        // Elevate priority for HLP.
-        elevate_prio(curr_tcb);
     }
+    
+    INT_ATOMIC_END;
     
     return 0;
 }
@@ -98,35 +111,48 @@ int mutex_unlock(int mutex_num) {
     // Sanity checks
     if (mutex_num >= next_mutex
         || mutexes[mutex_num].curr_owner == NONE) return -EINVAL;
+    
+    INT_ATOMIC_START;
     if (mutexes[mutex_num].curr_owner->native_prio !=
         curr_tcb->native_prio) return -EPERM;
+    INT_ATOMIC_END;
     
     // Restore curr owner's old priority and unset holds_lock.
     mutexes[mutex_num].curr_owner->curr_prio = 
         mutexes[mutex_num].curr_owner->native_prio;
     mutexes[mutex_num].curr_owner->holds_lock = FALSE;
+    mutexes[mutex_num].curr_owner = NONE;
     
-    // Check if other tasks want the mutex.
-    if (mutexes[mutex_num].sleep_queue.size != 0) {
-        tcb_t* next_tcb = 
-            tcbqueue_dequeue(&(mutexes[mutex_num].sleep_queue));
-        
-        // Give next task the mutex.
-        mutexes[mutex_num].curr_owner = next_tcb;
-        next_tcb->holds_lock = TRUE;
-        elevate_prio(next_tcb);
-        
-        INT_ATOMIC_START;
-        runqueue_add(next_tcb, next_tcb->curr_prio);
-        INT_ATOMIC_END;
-        
-        /* If the next task has a higher priority than the current task,
-         * context switch to it immediately. */
-        if (is_higher_prio(next_tcb)) dispatch_save();
-    } else {
-        // Safe to release mutex if no other tasks want it currently.
-        mutexes[mutex_num].curr_owner = NONE;
+    // Check if other tasks want the mutex, or are waiting on other
+    // mutexes due to HLP.
+    bool need_to_dispatch = FALSE;
+    
+    int i;
+    for (i = 0; i < next_mutex; i++) {
+        if (mutexes[i].sleep_queue.size != 0) {
+            tcb_t* next_tcb = 
+                tcbqueue_dequeue(&(mutexes[i].sleep_queue));
+            
+            // Give next task the mutex.
+            mutexes[i].curr_owner = next_tcb;
+            next_tcb->holds_lock = TRUE;
+            elevate_prio(next_tcb);
+            
+            INT_ATOMIC_START;
+            runqueue_add(next_tcb, next_tcb->curr_prio);
+            INT_ATOMIC_END;
+            
+            // We only allow a single mutex to be locked at any point
+            // in time. We dispatch later to avoid returning back to
+            // this for loop.
+            need_to_dispatch = TRUE;
+            break;
+        }
     }
+    
+    if (need_to_dispatch) dispatch_save();
+    else locking_allowed = TRUE; // Safe to allow locking again if no
+                                 // other task has a mutex.
     
     return 0;
 }

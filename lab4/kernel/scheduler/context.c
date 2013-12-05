@@ -17,7 +17,7 @@
 #include "scheduler.h"
 
 // Global which tracks the currently executing task.
-tcb_t *curr_tcb = 0;
+volatile tcb_t *curr_tcb = 0;
 
 // ASM routines
 void ctx_switch_full(sched_context_t *next_ctx,
@@ -29,13 +29,11 @@ void ctx_switch_half(sched_context_t *next_ctx);
  * the current task while saving off the current task state.
  */
 void dispatch_save() {
-    INT_ATOMIC_START;
     tcb_t *next_tcb = runqueue_remove(highest_prio());
     tcb_t *old_tcb = curr_tcb;
     
     // Mark current task as runnable.
     runqueue_add(curr_tcb, curr_tcb->curr_prio);
-    INT_ATOMIC_END;
     
     // Update current TCB.
     curr_tcb = next_tcb;
@@ -49,12 +47,10 @@ void dispatch_save() {
  * current task without saving the current task state.
  */
 void dispatch_nosave() {    
-    INT_ATOMIC_START;
     tcb_t *next_tcb = runqueue_remove(highest_prio());
     
     // Mark current task as runnable.
     runqueue_add(curr_tcb, curr_tcb->curr_prio);
-    INT_ATOMIC_END;
     
     // Update current TCB.
     curr_tcb = next_tcb;
@@ -70,10 +66,8 @@ void dispatch_nosave() {
  *
  * There is always an idle task to switch to.
  */
-void dispatch_sleep() {    
-    INT_ATOMIC_START;
+void dispatch_sleep() {
     tcb_t *next_tcb = runqueue_remove(highest_prio());
-    INT_ATOMIC_END;
     
     tcb_t *old_tcb = curr_tcb;
     

@@ -12,6 +12,7 @@
 #include <types.h>
 #include <arm/reg.h>
 #include <arm/timer.h>
+#include <arm/interrupt.h>
 #include "../scheduler/scheduler.h"
 #include "../interrupts/timers.h"
 #include "sleep_tasking.h"
@@ -38,6 +39,8 @@ void sleep(unsigned long millis) {
     uint32_t remainder_ticks = get_ticks(millis % MS_PER_OVERFLOW);
     
     // Add current task to the sleeping list and send it to sleep.
+    INT_ATOMIC_START;
     sleepers_add(curr_tcb, overflows_needed, remainder_ticks);
     dispatch_sleep();
+    INT_ATOMIC_END;
 }

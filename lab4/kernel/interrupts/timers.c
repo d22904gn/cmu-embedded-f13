@@ -152,8 +152,7 @@ void watchdog_woof() {
     reg_write(OSTMR_OSMR_ADDR(3),
         reg_read(OSTMR_OSCR_ADDR) + get_ticks(WATCHDOG_PERIOD));
     
-    // Start patrolling.
-    
+    /* Start patrolling */
     // Sleep
     if (sleeper_count > 0
         && curr_sleep_match <= reg_read(OSTMR_OSCR_ADDR))

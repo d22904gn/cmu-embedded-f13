@@ -20,7 +20,7 @@
 #include "../scheduler/mutex.h"
 
 // Globals
-extern tcb_t *curr_tcb;     // Currently running task.
+extern volatile tcb_t *curr_tcb;     // Currently running task.
 
 // Tasking routines
 bool assign_schedule(task_t** tasks, uint32_t num_tasks);

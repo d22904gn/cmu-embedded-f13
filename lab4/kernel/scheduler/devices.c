@@ -30,17 +30,14 @@ void dev_init(unsigned long millis) {
 }
 
 /**
- * @brief Adds a task to the device sleep queue.
+ * @brief Adds a task to the device sleep queue. Assumes no interrupts.
  */
 void dev_enqueue(tcb_t *task, unsigned int dev_num) {
     // Sanity check
     if (dev_num >= NUM_DEVICES ||
         tcbqueue_full(&(devices[dev_num].sleep_queue))) return;
     
-    // No naughty business with the queue when we're adding to it!
-    INT_ATOMIC_START;
     tcbqueue_enqueue(&(devices[dev_num].sleep_queue), task);
-    INT_ATOMIC_END;
 }
 
 /**
@@ -58,6 +55,7 @@ void dev_update(unsigned long millis) {
      * Structures mangled:
      * 1. device TCB sleep queue
      * 2. runqueue
+     * 3. curr_tcb
      */
     uint32_t i;
     bool need_to_switch = FALSE;

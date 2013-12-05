@@ -44,7 +44,7 @@ void idle_init() {
     system_tcb[IDLE_PRIO].native_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].curr_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].holds_lock = FALSE;
-    system_tcb[IDLE_PRIO].hlp_queue_spot = NULL;
+    system_tcb[IDLE_PRIO].fifo_queue_spot = NULL;
     
     system_tcb[IDLE_PRIO].context.r4 = (uint32_t) idle;
     system_tcb[IDLE_PRIO].context.r5 = 0;
@@ -72,7 +72,7 @@ static const double u[OS_AVAIL_TASKS + 1] = {
 };
 
 /**
- * @brief Perform UB Test and reorder the task list.
+ * @brief Perform UB Test and reorder the task list. Assumes no interrupts.
  *
  * The task list at the end of this method will be sorted in order is priority
  * -- from highest priority (lowest priority number) to lowest priority
@@ -122,7 +122,7 @@ bool assign_schedule(task_t** tasks, uint32_t num_tasks) {
 
 /**
  * @brief Allocate user-stacks and initializes the kernel contexts of the
- * given threads.
+ * given threads. Assumes no interrupts.
  *
  * This function assumes that:
  * - num_tasks < number of tasks allowed on the system.
@@ -136,9 +136,6 @@ bool assign_schedule(task_t** tasks, uint32_t num_tasks) {
 bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
     // Initial sanity checks
     if (num_tasks > OS_AVAIL_TASKS) return FALSE;
-    
-    // No naughty business with shared structures!
-    INT_ATOMIC_START;
     
     // Re-init scheduler system
     runqueue_init();
@@ -167,7 +164,7 @@ bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
         system_tcb[prio_idx].native_prio = prio_idx;
         system_tcb[prio_idx].curr_prio = prio_idx;
         system_tcb[prio_idx].holds_lock = FALSE;
-        system_tcb[prio_idx].hlp_queue_spot = NULL;
+        system_tcb[prio_idx].fifo_queue_spot = NULL;
         
         // Setup task stack for launch_task
         // r4 -> user entry point.
@@ -188,14 +185,12 @@ bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
         prio_idx++;
     }
     
-    INT_ATOMIC_END;
-    
     return TRUE;
 }
 
 /**
  * Returns TRUE if the argument task has a higher priority than the
- * currently running task.
+ * currently running task. Assumes no interrupts.
  */
 bool is_higher_prio(tcb_t* task) {
     return (task->curr_prio < curr_tcb->curr_prio);
