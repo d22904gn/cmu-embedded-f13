@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 int mutex = 0;
+int mutex2 = 0;
 int fun1_iter = 0;
 int fun2_iter = 0;
 int fun3_iter = 0;
@@ -35,9 +36,9 @@ void fun1(void* str) {
         if (fun1_iter == 3) {
             fun1_iter = 0;
             mutex_unlock(mutex);
-            if (event_wait(3) < 0) panic("Dev 3 failed");
+            if (event_wait(2) < 0) panic("Dev 2 failed");
         } else {
-            sleep(1000);
+            sleep(10);
         }
 	}
 }
@@ -50,19 +51,19 @@ void fun2(void* str) {
         
         fun2_iter++;
         
-        if (fun2_iter == 5) {
+        if (fun2_iter == 4) {
             fun2_iter = 0;
             mutex_unlock(mutex);
-            if (event_wait(3) < 0) panic("Dev 3 failed");
+            if (event_wait(0) < 0) panic("Dev 0 failed");
         } else {
-            sleep(PERIOD_DEV1);
+            sleep(10);
         }
 	}
 }
 
 void fun3(void* str) {
 	while(1) {
-        if (fun3_iter == 0) mutex_lock(mutex);
+        if (fun3_iter == 0) mutex_lock(mutex2);
         
 		putchar((int)str);
         
@@ -70,10 +71,10 @@ void fun3(void* str) {
         
         if (fun3_iter == 2) {
             fun3_iter = 0;
-            mutex_unlock(mutex);
+            mutex_unlock(mutex2);
             if (event_wait(3) < 0) panic("Dev 3 failed");
         } else {
-            sleep(PERIOD_DEV3);
+            sleep(10);
         }
 	}
 }
@@ -102,6 +103,7 @@ int main(int argc __attribute((unused)),
 	tasks[2].T = PERIOD_DEV2;
     
     mutex = mutex_create();
+    mutex2 = mutex_create();
     
 	task_create(tasks, 3);
 

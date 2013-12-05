@@ -146,6 +146,7 @@ int mutex_unlock(int mutex_num) {
                 tcbqueue_poll(&(mutexes[i].sleep_queue));
             
             if (queue_tcb->curr_prio < highest_prio) {
+                highest_prio = queue_tcb->curr_prio;
                 next_tcb = queue_tcb;
                 source_mutex = i;
             }
@@ -164,9 +165,8 @@ int mutex_unlock(int mutex_num) {
         
         INT_ATOMIC_START;
         runqueue_add(next_tcb, next_tcb->curr_prio);
-        INT_ATOMIC_END;
-        
         dispatch_save();
+        INT_ATOMIC_END;
     } else {
         // Safe to allow locking again if no other task wants a mutex.
         locking_allowed = TRUE;
