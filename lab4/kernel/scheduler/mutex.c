@@ -26,7 +26,7 @@ mutex_t mutexes[OS_NUM_MUTEX];
 static int next_mutex = 0;
 
 // HLP Emulation. Meh.
-static bool locking_allowed = TRUE;
+static volatile bool locking_allowed = TRUE;
 
 // HLP: Elevate task priority to comply with HLP
 INLINE void elevate_prio(tcb_t *task) {

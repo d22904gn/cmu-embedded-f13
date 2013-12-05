@@ -45,6 +45,10 @@ void sleepers_init() {
     // Reset the match register.
     curr_sleep_match = UINT32_MAX;
     reg_write(OSTMR_OSMR_ADDR(0), UINT32_MAX);
+    
+    // Reset watchdog for taking care of jitter.
+    reg_write(OSTMR_OSMR_ADDR(3),
+        reg_read(OSTMR_OSCR_ADDR) + get_ticks(WATCHDOG_PERIOD));
 }
 
 // Add a sleeper to the list.

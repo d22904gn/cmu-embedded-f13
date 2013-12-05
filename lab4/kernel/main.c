@@ -14,7 +14,6 @@
 #include <arm/reg.h>
 #include <arm/interrupt.h>
 #include <arm/timer.h>
-#include "interrupts/timers.h"
 
 #define PREFETCH_OFFSET 8
 #define SWI_VEC_ADDR    0x8u
@@ -101,7 +100,7 @@ int kmain(int argc, char** argv, uint32_t _uboot_exports) {
     reg_write(OSTMR_OSMR_ADDR(0), 0);
     reg_write(OSTMR_OSMR_ADDR(1), 0);
     reg_write(OSTMR_OSMR_ADDR(2), 0);
-    reg_write(OSTMR_OSMR_ADDR(3), get_ticks(WATCHDOG_PERIOD));
+    reg_write(OSTMR_OSMR_ADDR(3), 0);
     reg_write(OSTMR_OIER_ADDR,
               OSTMR_OIER_E0 | OSTMR_OIER_E1 |
               OSTMR_OIER_E2 | OSTMR_OIER_E3);
