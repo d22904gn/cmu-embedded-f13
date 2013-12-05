@@ -10,7 +10,7 @@
  */
 
 // Watchdog period (In milliseconds)
-#define WATCHDOG_PERIOD 250
+#define WATCHDOG_PERIOD 1000
 
 // Tracks # of clock overflows since kernel init.
 extern volatile uint32_t clock_overflows;

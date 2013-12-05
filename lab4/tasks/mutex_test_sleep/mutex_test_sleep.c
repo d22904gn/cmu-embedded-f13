@@ -50,7 +50,7 @@ void fun2(void* str) {
         if (fun2_iter == 5) {
             fun2_iter = 0;
             mutex_unlock(mutex);
-            if (event_wait(1) < 0) panic("Dev 1 failed");
+            if (event_wait(3) < 0) panic("Dev 1 failed");
         } else {
             sleep(PERIOD_DEV1);
         }

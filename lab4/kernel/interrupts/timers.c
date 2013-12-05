@@ -153,11 +153,13 @@ void watchdog_woof() {
         reg_read(OSTMR_OSCR_ADDR) + get_ticks(WATCHDOG_PERIOD));
     
     // Start patrolling.
-    uint32_t oscr = reg_read(OSTMR_OSCR_ADDR);
     
     // Sleep
-    if (sleeper_count > 0 && curr_sleep_match <= oscr) handle_sleep();
+    if (sleeper_count > 0
+        && curr_sleep_match <= reg_read(OSTMR_OSCR_ADDR))
+        handle_sleep();
     
     // Devices
-    if (reg_read(OSTMR_OSMR_ADDR(2)) <= oscr) handle_devices();
+    if (reg_read(OSTMR_OSMR_ADDR(2)) <= reg_read(OSTMR_OSCR_ADDR))
+        handle_devices();
 }
