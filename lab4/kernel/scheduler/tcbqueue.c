@@ -51,3 +51,10 @@ tcb_t* tcbqueue_dequeue(tcb_queue_t *queue) {
     
     return item;
 }
+
+tcb_t* tcbqueue_poll(tcb_queue_t *queue) {
+    // Sanity check
+    if (queue->size == 0) return 0;
+    
+    return queue->queue[queue->head];
+}

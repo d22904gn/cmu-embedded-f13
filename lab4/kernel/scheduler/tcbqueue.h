@@ -32,6 +32,7 @@ typedef struct tcb_queue tcb_queue_t;
 void tcbqueue_init(tcb_queue_t *queue);
 void tcbqueue_enqueue(tcb_queue_t *queue, tcb_t *item);
 tcb_t* tcbqueue_dequeue(tcb_queue_t *queue);
+tcb_t* tcbqueue_poll(tcb_queue_t *queue);
 bool tcbqueue_full(tcb_queue_t *queue);
 
 #endif
