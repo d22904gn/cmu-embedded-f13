@@ -96,5 +96,8 @@ ssize_t write(int fd, const void *buf, size_t count) {
         write_count++;
     }
     
+    // Force a buffer flush
+    puts(" \b");
+    
     return write_count;
 }

@@ -81,7 +81,8 @@ void runqueue_add(tcb_t* tcb, uint8_t prio) {
     if (prio > OS_MAX_TASKS - 1) return;
     
     // Add task to queue. If another task of the same priority already
-    // exists in the runqueue, we add it to its HLP queue.
+    // exists in the runqueue, we add it to its HLP queue. See task.h
+    // for HLP queue notes.
     if (run_list[prio] != NULL) {
         // Loop through the chain until we find an empty spot.
         tcb_t *queue = run_list[prio];

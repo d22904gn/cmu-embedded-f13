@@ -51,7 +51,45 @@ struct sched_context {
 };
 typedef volatile struct sched_context sched_context_t;
 
-
+/* HLP Queue notes:
+ * HLP Queue implements a simple linked list. It is used for
+ * accomodating tasks of the same curr_prio in the runqueue. Such a 
+ * situation may occur when different tasks acquire different mutexes
+ * and go to sleep.
+ * 
+ * Consider the following scenario:
+ *   We have 3 tasks (In descending native priority): T1, T2, T3
+ *   We have 3 mutexes: M1, M2, M3
+ * 
+ *   Each task's behaviour is:
+ *     1. Acquire their corresponding mutex. (E.g. T1 -> M1, T2 -> M2)
+ *     2. Do something.
+ *     3. Sleep for some fixed period.
+ *     4. Do something else.
+ *     5. Call event_wait().
+ * 
+ *   Suppose the following order of execution occured:
+ *     1. T1 runs. It obtains M1 and gets curr_prio = 0. Then it sleeps.
+ *     2. T2 runs. It obtains M2 and gets curr_prio = 0. Then it sleeps.
+ *     3. T3 runs. It obtains M3 and gets curr_prio = 0. Then it sleeps.
+ *     4. T1 wakes up. It enters the runqueue at curr_prio = 0.
+ *     5. T2 wakes up. It enters the runqueue at curr_prio = 0.
+ *     6. T3 wakes up. It enters the runqueue at curr_prio = 0.
+ *   
+ *   Note that when a task wakes up, it is sent into the runqueue at
+ *   position = curr_prio until it is woken up by an interrupt. Observe
+ *   that in this case, we are inserting 3 tasks at the same curr_prio
+ *   into the runqueue without removing any of the old tasks. The HLP
+ *   queue comes into play here; it is used to accomodate T2 and T3 when
+ *   they enter the runqueue. (See runqueue_add() or runqueue_remove())
+ * 
+ *   Note that we don't restore waking tasks to their native priority
+ *   before sending them to the runqueue; doing so would mean that the 
+ *   highest_prio() function is invalid since it would reflect the 
+ *   native_prio of the tasks instead of their curr_prio. Hence the HLP
+ *   queue is used to ensure that the tasks in the runqueue are 
+ *   dispatched at their correct priority.
+ */
 struct tcb {
     uint8_t         native_prio;        /* The native priority of the task without escalation */
     uint8_t         curr_prio;          /* The current priority of the task after priority inheritance */
