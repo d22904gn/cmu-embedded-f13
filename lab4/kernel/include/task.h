@@ -64,24 +64,28 @@ typedef volatile struct sched_context sched_context_t;
  *   Each task's behaviour is:
  *     1. Acquire their corresponding mutex. (E.g. T1 -> M1, T2 -> M2)
  *     2. Do something.
- *     3. Sleep for some fixed period.
+ *     3. Sleep for some arbitrary period.
  *     4. Do something else.
  *     5. Call event_wait().
  * 
- *   Suppose the following order of execution occured:
- *     1. T1 runs. It obtains M1 and gets curr_prio = 0. Then it sleeps.
- *     2. T2 runs. It obtains M2 and gets curr_prio = 0. Then it sleeps.
- *     3. T3 runs. It obtains M3 and gets curr_prio = 0. Then it sleeps.
- *     4. T1 wakes up. It enters the runqueue at curr_prio = 0.
- *     5. T2 wakes up. It enters the runqueue at curr_prio = 0.
+ *   Now assume the following order of execution:
+ *     1. T1 runs. It obtains M1 and gets curr_prio = 0. Then it
+ *        sleep()s for some arbitrary time.
+ *     2. T2 runs. It obtains M2 and gets curr_prio = 0. Then it
+ *        sleep()s for some arbitrary time.
+ *     3. T3 runs. It obtains M3 and gets curr_prio = 0. Then it
+ *        sleep()s for some arbitrary time.
+ *     4. The idle task runs.
+ *     5. T1 wakes up. Since there is no current task, it runs.
  *     6. T3 wakes up. It enters the runqueue at curr_prio = 0.
+ *     7. T2 wakes up. It enters the runqueue at curr_prio = 0.
  *   
- *   Note that when a task wakes up, it is sent into the runqueue at
- *   position = curr_prio until it is woken up by an interrupt. Observe
- *   that in this case, we are inserting 3 tasks at the same curr_prio
- *   into the runqueue without removing any of the old tasks. The HLP
- *   queue comes into play here; it is used to accomodate T2 and T3 when
- *   they enter the runqueue. (See runqueue_add() or runqueue_remove())
+ *   Notye that when a task wakes up, it is sent into the runqueue at
+ *   run_list[curr_prio]. Observe that in this case, we are inserting 2
+ *   tasks (T3 then T2) with the same curr_prio into the runqueue
+ *   without removing T3. This is where HLP queue comes in; it is used
+ *   to accomodate T2 when it is inserted into the same position that
+ *   T3 is in inside the runqueue.
  * 
  *   Note that we don't restore waking tasks to their native priority
  *   before sending them to the runqueue; doing so would mean that the 
