@@ -30,7 +30,7 @@ static int next_mutex = 0;
 // of 0 (Highest priority.) Thus it is sufficient to track with a
 // boolean since attempts at locking other mutexes from other tasks will
 // always be denied due to rule 2(ii) in lecture slides.
-static volatile bool locking_allowed = TRUE;
+static bool locking_allowed = TRUE;
 
 // HLP: Elevate task priority to comply with HLP
 INLINE void elevate_prio(tcb_t *task) {

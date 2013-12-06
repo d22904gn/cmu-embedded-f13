@@ -92,6 +92,9 @@ int main(int argc __attribute((unused)),
     mutex1 = mutex_create();
     mutex2 = mutex_create();
     
+    fun1_iter = 0;
+    fun3_iter = 0;
+    
 	task_create(tasks, 3);
 
 	puts("Why did your code get here!\n");

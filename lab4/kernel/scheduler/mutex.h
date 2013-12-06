@@ -19,8 +19,8 @@
 #define MUTEX_H
 
 struct mutex {
-    tcb_t       *curr_owner;
-    tcb_queue_t sleep_queue;
+    tcb_t  *curr_owner;
+    tcb_queue_t     sleep_queue;
 };
 typedef struct mutex mutex_t;
 
