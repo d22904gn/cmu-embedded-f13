@@ -65,6 +65,9 @@ int main(int argc __attribute((unused)),
 	tasks[1].C = 1;
     tasks[1].B = 0;
 	tasks[1].T = PERIOD_DEV1;
+    
+    fun1_iter = 0;
+    fun2_iter = 0;
 
 	task_create(tasks, 2);
 

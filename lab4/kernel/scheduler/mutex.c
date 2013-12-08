@@ -17,7 +17,7 @@
 #include "scheduler.h"
 
 // Readibility definitions
-#define NONE 0
+#define NO_OWNER NULL
 
 // Allocate space for mutexes
 mutex_t mutexes[OS_NUM_MUTEX];
@@ -27,10 +27,11 @@ static int next_mutex = 0;
 
 // HLP Emulation. Meh. This replaces the need to track the current
 // priority ceiling since we are assigning each mutex a priority ceiling
-// of 0 (Highest priority.) Thus it is sufficient to track with a
-// boolean since attempts at locking other mutexes from other tasks will
-// always be denied due to rule 2(ii) in lecture slides.
-static bool locking_allowed = TRUE;
+// of 0 (Highest priority.) Since attempts at locking other mutexes from
+// other tasks will always be denied due to rule 2(ii) in lecture slides
+//, it is suffient to track priority ceiling with a pointer to the
+// current task which is holding the mutex.
+static tcb_t *curr_mutex_owner = NO_OWNER;
 
 // HLP: Elevate task priority to comply with HLP
 INLINE void elevate_prio(tcb_t *task) {
@@ -56,12 +57,11 @@ INLINE void elevate_prio(tcb_t *task) {
 
 // Initialize mutexes
 void mutex_init() {
-    locking_allowed = TRUE;
+    curr_mutex_owner = NO_OWNER;
     
     uint32_t i;
-    
     for (i = 0; i < OS_NUM_MUTEX; i++) {
-        mutexes[i].curr_owner = NONE;
+        mutexes[i].curr_owner = NO_OWNER;
         tcbqueue_init(&(mutexes[i].sleep_queue));
     }
 }
@@ -85,14 +85,16 @@ int mutex_lock(int mutex_num) {
     // Due to HLP, do not allow tasks to acquire mutexes when any mutex
     // (not necessarily the current task's desired mutex) is in use.
     // If mutex is unavailable, put the task on a sleep queue.
-    if (locking_allowed && mutexes[mutex_num].curr_owner == NONE) {
+    if ((curr_mutex_owner == NO_OWNER
+            || curr_mutex_owner->native_prio == curr_tcb->native_prio)
+        && mutexes[mutex_num].curr_owner == NO_OWNER) {
         // Assign mutex to task.
         mutexes[mutex_num].curr_owner = curr_tcb;
-        curr_tcb->holds_lock = TRUE;
+        curr_tcb->locks_held++;
         
         // Elevate priority and disable lockings for HLP.
         elevate_prio(curr_tcb);
-        locking_allowed = FALSE;
+        curr_mutex_owner = curr_tcb;
     } else {
         // Make sure task does not acquire same mutex twice.
         if (mutexes[mutex_num].curr_owner->native_prio ==
@@ -114,18 +116,26 @@ int mutex_lock(int mutex_num) {
 int mutex_unlock(int mutex_num) {
     // Sanity checks
     if (mutex_num >= next_mutex
-        || mutexes[mutex_num].curr_owner == NONE) return -EINVAL;
+        || mutexes[mutex_num].curr_owner == NO_OWNER) return -EINVAL;
     
     INT_ATOMIC_START;
     if (mutexes[mutex_num].curr_owner->native_prio !=
         curr_tcb->native_prio) return -EPERM;
-    INT_ATOMIC_END;
     
-    // Restore curr owner's old priority and unset holds_lock.
-    mutexes[mutex_num].curr_owner->curr_prio = 
-        mutexes[mutex_num].curr_owner->native_prio;
-    mutexes[mutex_num].curr_owner->holds_lock = FALSE;
-    mutexes[mutex_num].curr_owner = NONE;
+    // Release mutex from current owner.
+    mutexes[mutex_num].curr_owner = NO_OWNER;
+    curr_tcb->locks_held--;
+    
+    // We don't release mutexes to any other person until all the
+    // mutexes held by the current task are released.
+    if (curr_tcb->locks_held > 0) {
+        return 0;
+    }
+    
+    // De-elevate current task priority.
+    curr_tcb->curr_prio = curr_tcb->native_prio;
+    
+    INT_ATOMIC_END;
     
     // Check if other tasks want the mutex, or are waiting on other
     // mutexes due to HLP. We select the next highest priority task at
@@ -160,8 +170,9 @@ int mutex_unlock(int mutex_num) {
         
         // Give next task the mutex.
         mutexes[source_mutex].curr_owner = next_tcb;
-        next_tcb->holds_lock = TRUE;
+        next_tcb->locks_held++;
         elevate_prio(next_tcb);
+        curr_mutex_owner = next_tcb;
         
         INT_ATOMIC_START;
         runqueue_add(next_tcb, next_tcb->curr_prio);
@@ -169,7 +180,7 @@ int mutex_unlock(int mutex_num) {
         INT_ATOMIC_END;
     } else {
         // Safe to allow locking again if no other task wants a mutex.
-        locking_allowed = TRUE;
+        curr_mutex_owner = NO_OWNER;
     }
     
     return 0;

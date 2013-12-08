@@ -43,7 +43,7 @@ void idle_init() {
     // Init idle TCB.
     system_tcb[IDLE_PRIO].native_prio = IDLE_PRIO;
     system_tcb[IDLE_PRIO].curr_prio = IDLE_PRIO;
-    system_tcb[IDLE_PRIO].holds_lock = FALSE;
+    system_tcb[IDLE_PRIO].locks_held = 0;
     system_tcb[IDLE_PRIO].fifo_queue_spot = NULL;
     
     system_tcb[IDLE_PRIO].context.r4 = (uint32_t) idle;
@@ -163,7 +163,7 @@ bool allocate_tasks(task_t **tasks, uint32_t num_tasks) {
         // Setup prioties and locks
         system_tcb[prio_idx].native_prio = prio_idx;
         system_tcb[prio_idx].curr_prio = prio_idx;
-        system_tcb[prio_idx].holds_lock = FALSE;
+        system_tcb[prio_idx].locks_held = 0;
         system_tcb[prio_idx].fifo_queue_spot = NULL;
         
         // Setup task stack for launch_task

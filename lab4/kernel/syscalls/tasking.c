@@ -59,7 +59,7 @@ int event_wait(unsigned int dev_num) {
     INT_ATOMIC_START;
     
     // Prevent tasks from waiting if they have a mutex.
-    if (curr_tcb->holds_lock) return -EHOLDSLOCK;
+    if (curr_tcb->locks_held != 0) return -EHOLDSLOCK;
     
     // Restore device priority to its native priority.
     curr_tcb->curr_prio = curr_tcb->native_prio;

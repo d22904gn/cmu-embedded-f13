@@ -59,7 +59,7 @@ struct tcb {
     uint8_t         native_prio;        /* The native priority of the task without escalation */
     uint8_t         curr_prio;          /* The current priority of the task after priority inheritance */
     sched_context_t context;            /* The task's serialized context -- if not running */
-    bool            holds_lock;         /* True if task holds a lock */
+    uint32_t        locks_held;         /* # of mutexes held by task. */
     volatile struct tcb *fifo_queue_spot;  /* Task FIFO queue. */
     /* Embed the kernel stack here -- AAPCS wants 8 byte alignment */
     uint32_t        kstack[OS_KSTACK_SIZE/sizeof(uint32_t)] 

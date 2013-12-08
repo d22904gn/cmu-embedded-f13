@@ -1,0 +1,5 @@
+PROGS_HLP_TEST_3_OBJS := hlp_test_3.o
+PROGS_HLP_TEST_3_OBJS := $(PROGS_HLP_TEST_3_OBJS:%=$(TDIR)/hlp_test_3/%)
+ALL_OBJS += $(PROGS_HLP_TEST_3_OBJS)
+
+$(TDIR)/bin/hlp_test_3 : $(TSTART) $(PROGS_HLP_TEST_3_OBJS) $(TLIBC)
